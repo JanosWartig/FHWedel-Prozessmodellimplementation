@@ -12,6 +12,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -52,11 +53,7 @@ public class AddressView extends Composite<Component> {
 
 	private HorizontalLayout addressControl = new HorizontalLayout(addressNew, addressSave, addressReset, addressDelete, testToTorder);
 
-	private VerticalLayout view = new VerticalLayout(
-			new HeadlineSubheadlineView("Addressen", "Aktualisiere die bestehenden Addressen zu dem Kunden.", Constants.HEADLINE_2),
-			addressForm,
-			addressControl,
-			new ForwardBackwardNavigationView("Ein Zimmer auswählen", "search"));
+	private VerticalLayout view = new VerticalLayout();
 
 	private Optional<Address> address = Optional.empty();
 	private Optional<Customer> customer = Optional.empty();
@@ -68,6 +65,8 @@ public class AddressView extends Composite<Component> {
 	private Set<Runnable> listenersDelete = new HashSet<>();
 	private Actions actions;
 
+	private Grid<Address> addresses = new Grid<>();
+
 	public AddressView(CustomerRepo customerRepo, AddressRepo addressRepo, Actions actions) {
 		this.customerRepo = customerRepo;
 		this.addressRepo = addressRepo;
@@ -77,12 +76,29 @@ public class AddressView extends Composite<Component> {
 		addressForm.addFormItem(addressZip, "PLZ");
 		addressForm.addFormItem(addressCity, "Ort");
 
+		addresses.addColumn(Address::getStreet).setHeader("Strasse");
+		addresses.addColumn(Address::getZip).setHeader("PLZ");
+		addresses.addColumn(Address::getCity).setHeader("Ort");
+		addresses.setSelectionMode(Grid.SelectionMode.SINGLE);
+		addresses.setHeight("300px");
+		addresses.addSelectionListener( event -> selectAddress(event.getFirstSelectedItem()) );
+
+		this.view.add(new HeadlineSubheadlineView("Addressen", "Aktualisiere die bestehenden Addressen zu dem Kunden.", Constants.HEADLINE_2));
+		this.view.add(addresses);
+		this.view.add(addressForm);
+		this.view.add(addressControl);
+		this.view.add(new ForwardBackwardNavigationView("Ein Zimmer auswählen", "search"));
+
 		binder.bindInstanceFields(this);
 	}
 
 	@Override
 	protected Component initContent() {
 		return view;
+	}
+
+	public void selectAddress(Optional<Address> address) {
+		this.setAddress(address);
 	}
 
 	public void listenToNew(Runnable listener) {
