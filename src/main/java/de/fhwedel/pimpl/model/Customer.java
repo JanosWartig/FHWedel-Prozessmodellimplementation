@@ -4,24 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
 
 @Entity
 public class Customer {
-
-	public enum Salutation {
-		FEMALE {
-			@Override
-			public String toString() { return "weiblich"; }
-		},
-		MALE {
-			@Override
-			public String toString() { return "männlich"; }
-		}
-	};
 
 	private static int runnumber = 1;
 
@@ -40,8 +27,8 @@ public class Customer {
 
 	public static Customer createRandomCustomer() {
 		Random r = new Random();
-		return new Customer(Salutation.values()[r.nextInt(2)], Integer.valueOf("1" + (runnumber++)), createRandomName(),
-				createRandomName());
+		return new Customer(Integer.valueOf("1" + (runnumber++)), createRandomName(),
+				createRandomName(), createRandomName(), createRandomName(), createRandomName());
 	}
 
 	@Id
@@ -52,9 +39,6 @@ public class Customer {
 	private Integer customerNumber;
 
 	@NotNull(message = "Pflichtangabe")
-	private Salutation salutation;
-
-	@NotNull(message = "Pflichtangabe")
 	@Size(min = 2, message = "Mindestens zwei Zeichen Länge")
 	private String surname;
 
@@ -63,31 +47,32 @@ public class Customer {
 	private String prename;
 
 	@NotNull
-	@OneToMany(mappedBy = "customer", orphanRemoval = true, cascade = CascadeType.ALL)
-	private Set<Address> addresses;
+	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
+	private String street;
+
+	@NotNull
+	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
+	private String zip;
+
+	@NotNull
+	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
+	private String city;
 
 	public Customer() {
-		this.addresses = new HashSet<>();
-	}
 
-	public Customer(Salutation salutation, Integer customerNumber, String surname, String prename) {
+	}
+	public Customer(Integer customerNumber, String surname, String prename, String street, String zip, String city) {
 		this();
-		this.salutation = salutation;
 		this.customerNumber = customerNumber;
 		this.surname = surname;
 		this.prename = prename;
+		this.street = street;
+		this.zip = zip;
+		this.city = city;
 	}
 
 	public Integer getId() {
 		return id;
-	}
-
-	public Salutation getSalutation() {
-		return salutation;
-	}
-
-	public void setSalutation(Salutation salut) {
-		this.salutation = salut;
 	}
 
 	public Integer getCustomerNumber() {
@@ -114,28 +99,34 @@ public class Customer {
 		this.prename = prename;
 	}
 
-	public Set<Address> getAddresses() {
-		return addresses;
+	public String getStreet() { return this.street; }
+
+	public void setStreet(String street) { this.street = street; }
+
+	public String getZip() {
+		return this.zip;
+	}
+	public void setZip(String zip) {
+		this.zip = zip;
 	}
 
-	public void addAddress(Address addr) {
-		addr.setCustomer(this);
-		this.addresses.add(addr);
+	public String getCity() {
+		return this.city;
 	}
 
-	public void removeAddress(Address addr) {
-		this.addresses.remove(addr);
-		addr.setCustomer(null);
+	public void setCity(String city) {
+		this.city = city;
 	}
 
 	@Override
 	public String toString() {
 		return "Customer{" +
 				"customerNumber=" + customerNumber +
-				", salutation=" + salutation +
 				", surname='" + surname + '\'' +
 				", prename='" + prename + '\'' +
-				", addresses=" + addresses +
+				", street='" + street + '\'' +
+				", zip='" + zip + '\'' +
+				", city='" + city + '\'' +
 				'}';
 	}
 

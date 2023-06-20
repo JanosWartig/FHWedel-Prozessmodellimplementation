@@ -23,7 +23,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.fhwedel.pimpl.model.Customer;
-import de.fhwedel.pimpl.model.Customer.Salutation;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
 @SuppressWarnings("serial")
@@ -32,8 +31,6 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 public class CustomerView extends Composite<Component> {
 
 	private IntegerField customerNumber = new IntegerField();
-	@PropertyId("salutation")
-	private ComboBox<Salutation> customerSalutation = new ComboBox<>(null, Salutation.values());
 	@PropertyId("surname")
 	private TextField customerSurname = new TextField();
 	@PropertyId("prename")
@@ -59,7 +56,6 @@ public class CustomerView extends Composite<Component> {
 		this.customerRepo = customerRepo;
 
 		customerForm.addFormItem(customerNumber, "Kundennummer");
-		customerForm.addFormItem(customerSalutation, "Anrede");
 		customerForm.addFormItem(customerSurname, "Nachname");
 		customerForm.addFormItem(customerPrename, "Vorname");
 
@@ -103,6 +99,7 @@ public class CustomerView extends Composite<Component> {
 		customerReset.setEnabled(customer.isPresent());
 		customerDelete.setEnabled(customer.map(a -> a.getId() != null).orElse(false));
 	}
+
 
 	private void onCustNewClick(com.vaadin.flow.component.ClickEvent<Button> event) {
 		Optional<Customer> newCust = Optional.of(new Customer());

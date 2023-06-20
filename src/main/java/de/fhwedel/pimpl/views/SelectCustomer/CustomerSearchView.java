@@ -12,10 +12,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
@@ -25,10 +28,10 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("serial")
-@Route("/")
+@Route(Routes.CUSTOMER_START)
 @SpringComponent
 @UIScope
-public class CustomerSearchView extends Composite<Component> {
+public class CustomerSearchView extends Composite<Component> implements BeforeEnterObserver {
 
 	private TextField customersQuery = new TextField();
 	private Button customersSearch = new Button("Suchen", event -> search( Optional.of(customersQuery.getValue()) ));
@@ -61,6 +64,11 @@ public class CustomerSearchView extends Composite<Component> {
 		view = new VerticalLayout(customersForm);
 
 		selectCustomer(Optional.empty());
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		this.customers.setItems();
 	}
 
 	@Override

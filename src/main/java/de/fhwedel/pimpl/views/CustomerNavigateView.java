@@ -101,7 +101,6 @@ public class CustomerNavigateView extends Composite<Component> {
 
 	public void showAddresses(Optional<Customer> customer) {
 		customer = customer.flatMap(cust -> customerRepo.findById(cust.getId()));
-		addresses.setItems(DataProvider.ofCollection(customer.map(c -> c.getAddresses()).orElse(Collections.emptySet())));
 		addressView.setAddress(Optional.empty());
 		addressView.setCustomer(customer);
 	}

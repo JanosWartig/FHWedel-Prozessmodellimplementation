@@ -24,6 +24,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
 import de.fhwedel.pimpl.model.Address;
@@ -37,12 +38,7 @@ import de.fhwedel.pimpl.views.actions.Actions;
 @UIScope
 public class AddressView extends Composite<Component> {
 
-	@PropertyId("street")
-	private TextField addressStreet = new TextField();
-	@PropertyId("zip")
-	private TextField addressZip = new TextField();
-	@PropertyId("city")
-	private TextField addressCity = new TextField();
+
 	private FormLayout addressForm = new FormLayout();
 
 	private Button addressNew = new Button("Neue Adresse hinzufügen", this::onAddrNewClick);
@@ -72,10 +68,6 @@ public class AddressView extends Composite<Component> {
 		this.addressRepo = addressRepo;
 		this.actions = actions;
 
-		addressForm.addFormItem(addressStreet, "Straße");
-		addressForm.addFormItem(addressZip, "PLZ");
-		addressForm.addFormItem(addressCity, "Ort");
-
 		addresses.addColumn(Address::getStreet).setHeader("Strasse");
 		addresses.addColumn(Address::getZip).setHeader("PLZ");
 		addresses.addColumn(Address::getCity).setHeader("Ort");
@@ -87,7 +79,7 @@ public class AddressView extends Composite<Component> {
 		this.view.add(addresses);
 		this.view.add(addressForm);
 		this.view.add(addressControl);
-		this.view.add(new ForwardBackwardNavigationView("Ein Zimmer auswählen", "search"));
+		this.view.add(new ForwardBackwardNavigationView("Ein Zimmer auswählen", Routes.CUSTOMER_START));
 
 		binder.bindInstanceFields(this);
 	}
@@ -158,7 +150,6 @@ public class AddressView extends Composite<Component> {
 				if (binder.writeBeanIfValid(addr)) {
 					Address addressSaved = addressRepo.save(addr);
 					if (addr.getCustomer() == null) {
-						cust.addAddress(addr);
 						Customer customerSaved = customerRepo.save(cust);
 						setCustomer(Optional.of(customerSaved));
 					}
@@ -181,7 +172,6 @@ public class AddressView extends Composite<Component> {
 			d.add(new HorizontalLayout(new Button("Ja, wirklich", ev -> {
 				d.close();
 				Customer c = a.getCustomer();
-				c.removeAddress(a);
 				customer = Optional.of(customerRepo.save(c));
 				setAddress(Optional.empty());
 				listenersDelete.forEach(Runnable::run);
