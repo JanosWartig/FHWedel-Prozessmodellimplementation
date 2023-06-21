@@ -12,7 +12,7 @@ public class RoomCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "room_id")
+    @Column(name = "roomCategory_id")
     private Integer id;
 
     private String name;
@@ -21,9 +21,35 @@ public class RoomCategory {
     private Integer numberOfBeds;
 
     @Size(min = 100, message = "Dies ist der Standardpreis.")
-    private int price;
+    private Integer price;
 
     @Size(min = 50, message = "Dies ist der minimale Preis.")
-    private int minPrice;
+    private Integer minPrice;
+
+    public RoomCategory() {}
+
+    public RoomCategory(String name, Integer numberOfBeds, Integer price, Integer minPrice) {
+        this();
+        this.name = name;
+        this.numberOfBeds = numberOfBeds;
+        this.price = price;
+        this.minPrice = minPrice;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Integer getNumberOfBeds() {
+        return this.numberOfBeds;
+    }
+
+    public int getPrice() {
+        return this.price;
+    }
+
+    public int getMinPrice() {
+        return this.minPrice;
+    }
 
 }
