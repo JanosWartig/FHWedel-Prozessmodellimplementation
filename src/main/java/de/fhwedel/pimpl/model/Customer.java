@@ -1,5 +1,6 @@
 package de.fhwedel.pimpl.model;
 
+import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,16 +28,15 @@ public class Customer {
 
 	public static Customer createRandomCustomer() {
 		Random r = new Random();
-		return new Customer(Integer.valueOf("1" + (runnumber++)), createRandomName(),
-				createRandomName(), createRandomName(), createRandomName(), createRandomName());
+		return new Customer(createRandomName(), createRandomName(), createRandomName(), createRandomName(), createRandomName());
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@Column(name = "cust_id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	private Integer customerNumber;
+	@Column(name = "customber_number")
+	private String customerNumber;
 
 	@NotNull(message = "Pflichtangabe")
 	@Size(min = 2, message = "Mindestens zwei Zeichen Länge")
@@ -58,12 +58,11 @@ public class Customer {
 	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
 	private String city;
 
-	public Customer() {
+	public Customer() {}
 
-	}
-	public Customer(Integer customerNumber, String surname, String prename, String street, String zip, String city) {
+	public Customer(String surname, String prename, String street, String zip, String city) {
 		this();
-		this.customerNumber = customerNumber;
+		this.customerNumber = String.valueOf(Integer.valueOf("1" + (runnumber++)));
 		this.surname = surname;
 		this.prename = prename;
 		this.street = street;
@@ -75,11 +74,11 @@ public class Customer {
 		return id;
 	}
 
-	public Integer getCustomerNumber() {
+	public String getCustomerNumber() {
 		return customerNumber;
 	}
 
-	public void setCustomerNumber(Integer customerNumber) {
+	public void setCustomerNumber(String customerNumber) {
 		this.customerNumber = customerNumber;
 	}
 

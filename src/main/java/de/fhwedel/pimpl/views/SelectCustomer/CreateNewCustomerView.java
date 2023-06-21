@@ -22,7 +22,6 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 @UIScope
 public class CreateNewCustomerView extends Composite<Component> {
 
-    private IntegerField customerNumber = new IntegerField();
     @PropertyId("surname")
     private TextField customerSurname = new TextField();
     @PropertyId("prename")
@@ -34,7 +33,7 @@ public class CreateNewCustomerView extends Composite<Component> {
     private FormLayout customerForm = new FormLayout();
 
     private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
-            "Ein Zimmer auswählen und Kunde anlegen", Routes.CUSTOMER_START
+            "Ein Zimmer auswählen und Kunde anlegen", Routes.ROOM_START
     );
 
     private VerticalLayout customersForm = new VerticalLayout(
@@ -48,7 +47,6 @@ public class CreateNewCustomerView extends Composite<Component> {
     public CreateNewCustomerView(CustomerRepo customerRepo) {
         this.customerRepo = customerRepo;
 
-        customerForm.addFormItem(customerNumber, "Kundennummer");
         customerForm.addFormItem(customerSurname, "Nachname");
         customerForm.addFormItem(customerPrename, "Vorname");
         customerForm.addFormItem(customerStreet, "Straße");
@@ -72,7 +70,6 @@ public class CreateNewCustomerView extends Composite<Component> {
 
     private void createNewCustomer() {
         Customer customer = new Customer();
-        customer.setCustomerNumber(this.customerNumber.getValue());
         customer.setSurname(this.customerSurname.getValue());
         customer.setPrename(this.customerPrename.getValue());
         customer.setStreet(this.customerStreet.getValue());

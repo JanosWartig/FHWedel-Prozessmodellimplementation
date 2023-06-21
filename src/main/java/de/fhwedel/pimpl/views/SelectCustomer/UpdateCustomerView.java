@@ -29,12 +29,11 @@ import java.util.Optional;
 @UIScope
 public class UpdateCustomerView extends Composite<Component> implements BeforeEnterObserver {
 
-    private String headlineCheckCustomer = "Kunde überprüfen";
+    private String headlineCheckCustomer = "Deine Daten überprüfen";
     private String subheadlineCheckCustomer = "Sind alle Daten korrekt?";
-    private String headlineUpdateCustomer = "Kunde aktualisieren";
-    private String subheadlineUpdateCustomer = "Aktualisiere den bestehenden Kunden.";
+    private String headlineUpdateCustomer = "Deine Daten aktualisieren";
+    private String subheadlineUpdateCustomer = "Aktualisiere deine Daten.";
 
-    private IntegerField customerNumber = new IntegerField();
     @PropertyId("surname")
     private TextField customerSurname = new TextField();
     @PropertyId("prename")
@@ -48,7 +47,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     private IntegerField customerDiscount = new IntegerField();
     private FormLayout customerForm = new FormLayout();
 
-    private Button customerEdit = new Button("Kunde bearbeiten");
+    private Button customerEdit = new Button("Daten bearbeiten");
     private Button customerUpdate = new Button("Aktualisieren");
     private Button customerDelete = new Button("Löschen");
 
@@ -56,7 +55,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
             this.subheadlineCheckCustomer, Constants.HEADLINE_1);
 
     private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
-            "Ein Zimmer auswählen", Routes.CUSTOMER_START
+            "Ein Zimmer auswählen", Routes.ROOM_START
     );
 
     private HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
@@ -75,7 +74,6 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     public UpdateCustomerView(CustomerRepo repo) {
         this.customerRepo = repo;
 
-        customerForm.addFormItem(customerNumber, "Kundennummer");
         customerForm.addFormItem(customerSurname, "Nachname");
         customerForm.addFormItem(customerPrename, "Vorname");
         customerForm.addFormItem(street, "Straße");
@@ -100,7 +98,6 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         Customer customer = null;
         if (customerOptional.isPresent()) {
             customer = customerOptional.get();
-            this.customerNumber.setValue(customer.getCustomerNumber());
             this.customerSurname.setValue(customer.getSurname());
             this.customerPrename.setValue(customer.getPrename());
             this.street.setValue(customer.getStreet());
@@ -119,7 +116,6 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     }
 
     private void resetView() {
-        this.customerNumber.setEnabled(false);
         this.customerSurname.setEnabled(false);
         this.customerPrename.setEnabled(false);
         this.street.setEnabled(false);
@@ -139,7 +135,6 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerEdit.setVisible(false);
         this.headlineSubheadlineView.setHeadline(this.headlineUpdateCustomer);
         this.headlineSubheadlineView.setSubheadline(this.subheadlineUpdateCustomer);
-        this.customerNumber.setEnabled(true);
         this.customerSurname.setEnabled(true);
         this.customerPrename.setEnabled(true);
         this.street.setEnabled(true);
