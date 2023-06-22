@@ -33,7 +33,7 @@ public class CreateNewCustomerView extends Composite<Component> {
     private FormLayout customerForm = new FormLayout();
 
     private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
-            "Ein Zimmer auswählen und Kunde anlegen", Routes.ROOM_START
+            "Zimmerkategorie auswählen und Kunde anlegen", false
     );
 
     private VerticalLayout customersForm = new VerticalLayout(
@@ -54,11 +54,12 @@ public class CreateNewCustomerView extends Composite<Component> {
         customerForm.addFormItem(customerCity, "Land");
         customerForm.addFormItem(customerDiscount, "Rabatt");
 
-        this.forwardBackwardNavigationView.getForward().addClickListener(event -> {
+        this.forwardBackwardNavigationView.getNext().addClickListener(event -> {
             this.createNewCustomer();
+            Routes.navigateTo(Routes.ROOM_START);
         });
 
-        this.forwardBackwardNavigationView.setForward(true);
+        this.forwardBackwardNavigationView.setNext(true);
 
         view = new VerticalLayout(customersForm);
     }

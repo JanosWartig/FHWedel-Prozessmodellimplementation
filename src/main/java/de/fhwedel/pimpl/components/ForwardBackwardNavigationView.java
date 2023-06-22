@@ -4,36 +4,52 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import de.fhwedel.pimpl.Utility.Routes;
 
 public class ForwardBackwardNavigationView extends HorizontalLayout {
 
     private Button back;
-    private Button forward;
+    private Button next;
 
+    public ForwardBackwardNavigationView(String text, boolean isBackButton) {
+        if (isBackButton) {
+            this.back = new Button(text, event -> UI.getCurrent().getPage().getHistory().back());
+            this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
+            getStyle().set("margin-top", "65px");
+            add(this.back);
+        } else {
+            this.next = new Button(text);
+            this.next.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
+            this.next.setIconAfterText(true);
+            this.next.setEnabled(false);
 
-    public ForwardBackwardNavigationView(String forwardText, String forwardDestination) {
-        this.back = new Button("Zurück", event -> UI.getCurrent().getPage().getHistory().back());
+            getStyle().set("margin-top", "65px");
+            add(this.next);
+        }
+
+    }
+
+    public ForwardBackwardNavigationView(String nextText, String backText) {
+        this.back = new Button(backText, event -> UI.getCurrent().getPage().getHistory().back());
         this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
 
-        this.forward = new Button(forwardText, event -> Routes.navigateTo(forwardDestination));
-        this.forward.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        this.forward.setIconAfterText(true);
-        this.forward.setEnabled(false);
+        this.next = new Button(nextText);
+        this.next.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
+        this.next.setIconAfterText(true);
+        this.next.setEnabled(false);
 
-        add(this.back, this.forward);
         getStyle().set("margin-top", "65px");
+        add(this.back, this.next);
     }
 
     public Button getBack() {
         return this.back;
     }
 
-    public Button getForward() {
-        return this.forward;
+    public Button getNext() {
+        return this.next;
     }
 
-    public void setForward(boolean enabled) {
-        this.forward.setEnabled(enabled);
+    public void setNext(boolean enabled) {
+        this.next.setEnabled(enabled);
     }
 }

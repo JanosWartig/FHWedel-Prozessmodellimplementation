@@ -2,7 +2,6 @@ package de.fhwedel.pimpl.views.SelectCustomer;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -55,7 +54,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
             this.subheadlineCheckCustomer, Constants.HEADLINE_1);
 
     private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
-            "Ein Zimmer auswählen", Routes.ROOM_START
+            "Zimmerkategorie auswählen", false
     );
 
     private HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
@@ -85,7 +84,10 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
 
-        this.forwardBackwardNavigationView.setForward(true);
+        this.forwardBackwardNavigationView.setNext(true);
+        this.forwardBackwardNavigationView.getNext().addClickListener(event -> {
+            Routes.navigateTo(Routes.ROOM_START);
+        });
 
         view = new VerticalLayout(customersForm);
     }

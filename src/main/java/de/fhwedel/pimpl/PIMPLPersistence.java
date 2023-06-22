@@ -2,6 +2,10 @@ package de.fhwedel.pimpl;
 
 import java.util.Properties;
 
+import de.fhwedel.pimpl.model.Room;
+import de.fhwedel.pimpl.model.RoomCategory;
+import de.fhwedel.pimpl.repos.RoomCategoryRepo;
+import de.fhwedel.pimpl.repos.RoomRepo;
 import jakarta.persistence.EntityManagerFactory;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.springframework.boot.CommandLineRunner;
@@ -25,12 +29,22 @@ import javax.sql.DataSource;
 public class PIMPLPersistence {
 
 	@Bean
-	public CommandLineRunner exampleData(PIMPLConfig config, CustomerRepo cs) {
+	public CommandLineRunner exampleData(PIMPLConfig config, CustomerRepo cs, RoomCategoryRepo rc, RoomRepo roomRepo) {
 		return (args) -> {
 			if (config.isRegenerate()) {
 				for (int i = 0; i < 25; i++) {
 					Customer c = Customer.createRandomCustomer();
 					cs.save(c);
+				}
+				// Room Categories
+				RoomCategory small = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Small, 1, 20, 10);
+				RoomCategory big = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Big, 5, 100, 50);
+				rc.save(small);
+				rc.save(big);
+				// Rooms
+				for(int i = 1; i < 20; i++) {
+					Room room = new Room(i, i > 10 ? big : small);
+					roomRepo.save(room);
 				}
 			}
 		};

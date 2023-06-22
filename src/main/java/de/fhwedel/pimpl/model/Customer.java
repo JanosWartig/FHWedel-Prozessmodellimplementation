@@ -1,7 +1,8 @@
 package de.fhwedel.pimpl.model;
 
-import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -33,9 +34,10 @@ public class Customer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "customer_id")
 	private Integer id;
 
-	@Column(name = "customber_number")
+	@Column(name = "customer_number")
 	private String customerNumber;
 
 	@NotNull(message = "Pflichtangabe")
@@ -46,17 +48,22 @@ public class Customer {
 	@Size(min = 2, message = "Mindestens zwei Zeichen Länge")
 	private String prename;
 
-	@NotNull
+	@NotNull(message = "Pflichtangabe")
 	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
 	private String street;
 
-	@NotNull
+	@NotNull(message = "Pflichtangabe")
 	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
 	private String zip;
 
-	@NotNull
+	@NotNull(message = "Pflichtangabe")
 	@Size(min = 1, message = "Mindestens ein Zeichen Länge")
 	private String city;
+
+	@NotNull(message = "Pflichtangabe")
+	@Min(value = 0, message = "Mindest Discount")
+	@Max(value = 100, message = "Max Discount")
+	private Integer discount = 0;
 
 	public Customer() {}
 
@@ -115,6 +122,14 @@ public class Customer {
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+
+	public Integer getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(Integer discount) {
+		this.discount = discount;
 	}
 
 	@Override
