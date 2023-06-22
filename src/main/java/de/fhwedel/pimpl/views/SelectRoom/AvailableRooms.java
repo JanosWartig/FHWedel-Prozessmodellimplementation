@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
@@ -50,6 +51,8 @@ public class AvailableRooms extends VerticalLayout implements BeforeEnterObserve
         this.roomCategoryRepo = roomCategoryRepo;
         this.roomRepo = roomRepo;
 
+        this.forwardBackwardNavigationView.getBack().addClickListener(event -> Routes.navigateTo(Routes.ROOM_START));
+
         rooms.addColumn(Room::getRoomNumber).setHeader("Zimmernummer").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getName()).setHeader("Zimmerkategorie").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getNumberOfBeds()).setHeader("Bettanzahl").setSortable(true);
@@ -74,23 +77,18 @@ public class AvailableRooms extends VerticalLayout implements BeforeEnterObserve
                 this.forwardBackwardNavigationView.getBack().setVisible(true);
                 this.forwardBackwardNavigationView.getNext().setVisible(true);
                 this.calculatePrice.setVisible(false);
+                this.forwardBackwardNavigationView.getNext().getStyle().set("color", "red");
             }
         });
 
         this.calculatePrice.setVisible(false);
-
-        this.forwardBackwardNavigationView.getBack().addClickListener(event -> {
-            Routes.navigateTo(Routes.ROOM_START);
-        });
-
-        this.forwardBackwardNavigationView.getNext().getStyle().set("color", "red");
 
         this.add(view);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Integer id = Integer.valueOf(event.getLocation().getQueryParameters().getParameters().get("id").get(0));
+        Integer id = GlobalState.getInstance().getSelectedRoomCategoryID();
         Optional<RoomCategory> roomCategoryOptional = this.roomCategoryRepo.findById(id);
         if (roomCategoryOptional.isPresent()) {
             RoomCategory roomCategory = roomCategoryOptional.get();

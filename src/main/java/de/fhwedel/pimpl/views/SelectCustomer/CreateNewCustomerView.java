@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
@@ -55,7 +56,8 @@ public class CreateNewCustomerView extends Composite<Component> {
         customerForm.addFormItem(customerDiscount, "Rabatt");
 
         this.forwardBackwardNavigationView.getNext().addClickListener(event -> {
-            this.createNewCustomer();
+            Customer newCustomer = this.createNewCustomer();
+            GlobalState.getInstance().setCurrentCustomerID(newCustomer.getId());
             Routes.navigateTo(Routes.ROOM_START);
         });
 
@@ -69,7 +71,7 @@ public class CreateNewCustomerView extends Composite<Component> {
         return view;
     }
 
-    private void createNewCustomer() {
+    private Customer createNewCustomer() {
         Customer customer = new Customer();
         customer.setSurname(this.customerSurname.getValue());
         customer.setPrename(this.customerPrename.getValue());
@@ -78,5 +80,7 @@ public class CreateNewCustomerView extends Composite<Component> {
         customer.setCity(this.customerCity.getValue());
 
         this.customerRepo.save(customer);
+
+        return customer;
     }
 }

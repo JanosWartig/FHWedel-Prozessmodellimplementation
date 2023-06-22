@@ -12,7 +12,7 @@ public class ForwardBackwardNavigationView extends HorizontalLayout {
 
     public ForwardBackwardNavigationView(String text, boolean isBackButton) {
         if (isBackButton) {
-            this.back = new Button(text, event -> UI.getCurrent().getPage().getHistory().back());
+            this.back = new Button(text);
             this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
             getStyle().set("margin-top", "65px");
             add(this.back);
@@ -29,7 +29,7 @@ public class ForwardBackwardNavigationView extends HorizontalLayout {
     }
 
     public ForwardBackwardNavigationView(String nextText, String backText) {
-        this.back = new Button(backText, event -> UI.getCurrent().getPage().getHistory().back());
+        this.back = new Button(backText);
         this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
 
         this.next = new Button(nextText);

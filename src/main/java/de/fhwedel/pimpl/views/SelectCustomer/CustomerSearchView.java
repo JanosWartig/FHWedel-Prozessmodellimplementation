@@ -16,6 +16,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
 import de.fhwedel.pimpl.model.Customer;
@@ -51,7 +52,8 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 		customers.addSelectionListener( event -> {
 			if(event.getFirstSelectedItem().isPresent()) {
 				Customer customer = event.getFirstSelectedItem().get();
-				UI.getCurrent().navigate("/update-customer?id=" + customer.getId());
+				GlobalState.getInstance().setCurrentCustomerID(customer.getId());
+				UI.getCurrent().navigate(Routes.CUSTOMER_UPDATE);
 			}
 		});
 
@@ -60,8 +62,6 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 		this.navigateToCreateNewCustomer.setEnabled(false);
 
 		view = new VerticalLayout(customersForm);
-
-		selectCustomer(Optional.empty());
 	}
 
 	@Override
@@ -84,12 +84,6 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 		}
 	}
 
-	public void selectCustomer(Optional<Customer> customer) {
-		showAddresses(customer);
-	}
 
-	public void showAddresses(Optional<Customer> customer) {
-		customer = customer.flatMap(cust -> customerRepo.findById(cust.getId()));
-	}
 
 }

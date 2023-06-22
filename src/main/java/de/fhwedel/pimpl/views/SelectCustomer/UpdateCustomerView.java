@@ -15,6 +15,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
@@ -95,7 +96,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         this.resetView();
-        Integer id = Integer.valueOf(event.getLocation().getQueryParameters().getParameters().get("id").get(0));
+        Integer id = GlobalState.getInstance().getCurrentCustomerID();
         Optional<Customer> customerOptional = this.customerRepo.findById(id);
         Customer customer = null;
         if (customerOptional.isPresent()) {

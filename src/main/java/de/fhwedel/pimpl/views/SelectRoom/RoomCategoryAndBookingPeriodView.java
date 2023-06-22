@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
+import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
 import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
@@ -77,7 +78,8 @@ public class RoomCategoryAndBookingPeriodView extends VerticalLayout {
                 RoomCategory roomCategory = event.getFirstSelectedItem().get();
 
                 this.forwardBackwardNavigationView.getNext().addClickListener(event2 -> {
-                    UI.getCurrent().navigate(Routes.ROOM_AVAILABLE + "?id=" + roomCategory.getId());
+                    GlobalState.getInstance().setSelectedRoomCategoryID(roomCategory.getId());
+                    Routes.navigateTo(Routes.ROOM_AVAILABLE);
                 });
 
             } else {
@@ -87,10 +89,6 @@ public class RoomCategoryAndBookingPeriodView extends VerticalLayout {
 
         this.roomCategoryQuery.getStyle().set("margin-bottom", "15px");
         this.roomCategories.getStyle().set("margin-top", "15px");
-
-        this.checkIn.addValueChangeListener(event -> {
-           System.out.println(event.getValue());
-        });
 
         this.add(view);
     }
