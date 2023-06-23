@@ -22,58 +22,44 @@ import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
-import java.util.Optional;
-
 @Route(Routes.CUSTOMER_UPDATE)
 @SpringComponent
 @UIScope
 public class UpdateCustomerView extends Composite<Component> implements BeforeEnterObserver {
 
-    private String headlineCheckCustomer = "Deine Daten überprüfen";
-    private String subheadlineCheckCustomer = "Sind alle Daten korrekt?";
-    private String headlineUpdateCustomer = "Deine Daten aktualisieren";
-    private String subheadlineUpdateCustomer = "Aktualisiere deine Daten.";
+    private final String headlineCheckCustomer = "Deine Daten überprüfen";
+    private final String subheadlineCheckCustomer = "Sind alle Daten korrekt?";
 
     @PropertyId("surname")
-    private TextField customerSurname = new TextField();
+    private final TextField customerSurname = new TextField();
     @PropertyId("prename")
-    private TextField customerPrename = new TextField();
+    private final TextField customerPrename = new TextField();
     @PropertyId("street")
-    private TextField street = new TextField();
+    private final TextField street = new TextField();
     @PropertyId("zip")
-    private TextField zip = new TextField();
+    private final TextField zip = new TextField();
     @PropertyId("city")
-    private TextField city = new TextField();
-    private IntegerField customerDiscount = new IntegerField();
-    private FormLayout customerForm = new FormLayout();
+    private final TextField city = new TextField();
+    private final IntegerField customerDiscount = new IntegerField();
 
-    private Button customerEdit = new Button("Daten bearbeiten");
-    private Button customerUpdate = new Button("Aktualisieren");
-    private Button customerDelete = new Button("Löschen");
+    private final Button customerEdit = new Button("Daten bearbeiten");
+    private final Button customerUpdate = new Button("Aktualisieren");
+    private final Button customerDelete = new Button("Löschen");
 
-    private Header header = new Header(this.headlineCheckCustomer,
+    private final Header header = new Header(this.headlineCheckCustomer,
             this.subheadlineCheckCustomer, Constants.HEADLINE_1);
 
-    private Navigation navigation = new Navigation(
-            "Zimmerkategorie auswählen", false
-    );
+    private final HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
 
-    private HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
+    private final VerticalLayout view;
 
-    private VerticalLayout customersForm = new VerticalLayout(
-            header,
-            customerForm,
-            customerControl,
-            customerEdit,
-            this.navigation);
-    private VerticalLayout view;
-
-    private CustomerRepo customerRepo;
+    private final CustomerRepo customerRepo;
     private Customer customer;
 
     public UpdateCustomerView(CustomerRepo repo) {
         this.customerRepo = repo;
 
+        FormLayout customerForm = new FormLayout();
         customerForm.addFormItem(customerSurname, "Nachname");
         customerForm.addFormItem(customerPrename, "Vorname");
         customerForm.addFormItem(street, "Straße");
@@ -85,32 +71,31 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
 
-        this.navigation.setFinishButtonActive(true);
-        this.navigation.getFinish().addClickListener(event -> {
-            Routes.navigateTo(Routes.SELECT_ROOM_START);
-        });
+        Navigation navigation = new Navigation(
+                "Zimmerkategorie auswählen", false
+        );
+        navigation.setFinishButtonActive(true);
+        navigation.getFinish().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_START));
 
+        VerticalLayout customersForm = new VerticalLayout(
+                header,
+                customerForm,
+                customerControl,
+                customerEdit,
+                navigation);
         view = new VerticalLayout(customersForm);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         this.resetView();
-        Integer id = GlobalState.getInstance().getCurrentCustomerID();
-        Optional<Customer> customerOptional = this.customerRepo.findById(id);
-        Customer customer = null;
-        if (customerOptional.isPresent()) {
-            customer = customerOptional.get();
-            this.customerSurname.setValue(customer.getSurname());
-            this.customerPrename.setValue(customer.getPrename());
-            this.street.setValue(customer.getStreet());
-            this.zip.setValue(customer.getZip());
-            this.city.setValue(customer.getCity());
-            this.customer = customer;
-        } else {
-            Routes.navigateTo(Routes.CUSTOMER_START);
-        }
-        System.out.println(customer);
+        Customer customer = GlobalState.getInstance().getCurrentCustomer();
+        this.customerSurname.setValue(customer.getSurname());
+        this.customerPrename.setValue(customer.getPrename());
+        this.street.setValue(customer.getStreet());
+        this.zip.setValue(customer.getZip());
+        this.city.setValue(customer.getCity());
+        this.customer = customer;
     }
 
     @Override
@@ -136,8 +121,10 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     private void initEditCustomerView() {
         this.customerControl.setVisible(true);
         this.customerEdit.setVisible(false);
-        this.header.setHeadline(this.headlineUpdateCustomer);
-        this.header.setSecondHeadline(this.subheadlineUpdateCustomer);
+        String headlineUpdateCustomer = "Deine Daten aktualisieren";
+        this.header.setHeadline(headlineUpdateCustomer);
+        String subheadlineUpdateCustomer = "Aktualisiere deine Daten.";
+        this.header.setSecondHeadline(subheadlineUpdateCustomer);
         this.customerSurname.setEnabled(true);
         this.customerPrename.setEnabled(true);
         this.street.setEnabled(true);

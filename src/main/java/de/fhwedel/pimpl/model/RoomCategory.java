@@ -16,7 +16,7 @@ public class RoomCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "roomCategory_id")
-    private Integer id;
+    private RoomCategory id;
 
     @NotNull(message = "Pflichtangabe")
     private String name;
@@ -45,7 +45,7 @@ public class RoomCategory {
         this.minPrice = minPrice;
     }
 
-    public Integer getId() {
+    public RoomCategory getId() {
         return id;
     }
 

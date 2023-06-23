@@ -1,6 +1,8 @@
 package de.fhwedel.pimpl.Utility;
 
 import de.fhwedel.pimpl.model.Booking;
+import de.fhwedel.pimpl.model.Customer;
+import de.fhwedel.pimpl.model.RoomCategory;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -9,11 +11,11 @@ import java.time.LocalDate;
 public class GlobalState {
 
     private static GlobalState globalState;
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
-    private Integer currentCustomerID;
-    private Booking currentBooking;
-    private Integer selectedRoomCategoryID;
+    private Customer currentCustomer;
+    private Booking currentBooking = null;
+    private RoomCategory selectedRoomCategory;
 
     public static String SUPERVISOR_PROPERTY_NAME = "isSupervisorModeActive";
     public static String CURRENT_DATE_PROPERTY_NAME = "currentDate";
@@ -29,20 +31,20 @@ public class GlobalState {
         return globalState;
     }
 
-    public Integer getCurrentCustomerID() {
-        return currentCustomerID;
+    public Customer getCurrentCustomer() {
+        return currentCustomer;
     }
 
-    public void setCurrentCustomerID(Integer currentCustomerID) {
-        this.currentCustomerID = currentCustomerID;
+    public void setCurrentCustomer(Customer currentCustomer) {
+        this.currentCustomer = currentCustomer;
     }
 
-    public Integer getSelectedRoomCategoryID() {
-        return selectedRoomCategoryID;
+    public RoomCategory getSelectedRoomCategory() {
+        return selectedRoomCategory;
     }
 
-    public void setSelectedRoomCategoryID(Integer selectedRoomCategoryID) {
-        this.selectedRoomCategoryID = selectedRoomCategoryID;
+    public void setSelectedRoomCategory(RoomCategory selectedRoomCategory) {
+        this.selectedRoomCategory = selectedRoomCategory;
     }
 
     public Booking getCurrentBooking() {

@@ -1,12 +1,11 @@
 package de.fhwedel.pimpl.model;
 
+import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 public class Booking {
@@ -54,7 +53,31 @@ public class Booking {
 
     private String licensePlate;
 
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
+
     public Booking() { }
+
+    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkOutShould, Customer customer, Room room) {
+        if (checkInShould.isBefore(bookingDate)) {
+            throw new IllegalArgumentException("Check-In-Datum muss größer oder gleich dem Buchungsdatum sein.");
+        }
+        if (checkInShould.isAfter(checkOutShould)) {
+            throw new IllegalArgumentException("Check-Out-Datum muss größer dem Buchungsdatum sein.");
+        }
+
+        this.bookingNumber = GenerateUniqueNumber.createUniqueIdentifier();
+        this.bookingDate = bookingDate;
+        this.checkInShould = checkInShould;
+        this.checkOutShould = checkOutShould;
+        this.customer = customer;
+        this.room = room;
+    }
 
     public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate) {
         if (checkInShould.isBefore(bookingDate) || checkInIs.isBefore(bookingDate)) {
@@ -64,7 +87,7 @@ public class Booking {
             throw new IllegalArgumentException("Check-Out-Datum muss größer dem Buchungsdatum sein.");
         }
 
-        this.bookingNumber = UUID.randomUUID().toString();;
+        this.bookingNumber = GenerateUniqueNumber.createUniqueIdentifier();;
         this.bookingDate = bookingDate;
         this.checkInShould = checkInShould;
         this.checkInIs = checkInIs;
@@ -87,8 +110,8 @@ public class Booking {
         this.bookingDate = bookingDate;
     }
 
-    public BookingState getBookingState() {
-        return bookingState;
+    public String getBookingState() {
+        return bookingState.toString();
     }
 
     public void setBookingState(BookingState bookingState) {
@@ -149,5 +172,21 @@ public class Booking {
 
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 }

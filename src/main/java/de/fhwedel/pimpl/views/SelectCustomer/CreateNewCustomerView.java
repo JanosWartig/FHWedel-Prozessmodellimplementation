@@ -57,7 +57,7 @@ public class CreateNewCustomerView extends Composite<Component> {
 
         this.navigation.getFinish().addClickListener(event -> {
             Customer newCustomer = this.createNewCustomer();
-            GlobalState.getInstance().setCurrentCustomerID(newCustomer.getId());
+            GlobalState.getInstance().setCurrentCustomer(newCustomer);
             Routes.navigateTo(Routes.SELECT_ROOM_START);
         });
 
@@ -77,8 +77,9 @@ public class CreateNewCustomerView extends Composite<Component> {
                 this.customerPrename.getValue(),
                 this.customerStreet.getValue(),
                 this.customerZIP.getValue(),
-                this.customerCity.getValue()
-                );
+                this.customerCity.getValue(),
+                this.customerDiscount.getValue()
+        );
 
         this.customerRepo.save(customer);
 

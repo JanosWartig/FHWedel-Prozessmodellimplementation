@@ -13,6 +13,9 @@ public class Routes {
     public static final String SELECT_ROOM_BOOKING_FAILED = "/booking-failed";
     public static final String SELECT_ROOM_CALCULATE_PRICE = "/calculate-price";
 
+
+    public static final String BOOKINGS_SEARCH = "/booking-search";
+
     public static void navigateTo(String route) {
         UI.getCurrent().access(() -> UI.getCurrent().navigate(route));
     }

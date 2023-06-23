@@ -20,6 +20,7 @@ import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 
@@ -33,64 +34,77 @@ import java.util.Optional;
 @Route(Routes.SELECT_ROOM_START)
 @SpringComponent
 @UIScope
-public class RoomCategoryAndBookingPeriodView extends VerticalLayout implements BeforeEnterObserver {
+public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnterObserver {
 
-    private DatePicker checkIn = new DatePicker("Anreisedatum");
-    private DatePicker checkOut = new DatePicker("Abreisedatum");
-    private HorizontalLayout checkInOut = new HorizontalLayout(checkIn, checkOut);
-    private Label describeRoomCategory = new Label("Zimmerkategorie suchen");
+    private final DatePicker checkIn = new DatePicker("Anreisedatum");
+    private final DatePicker checkOut = new DatePicker("Abreisedatum");
+    private final HorizontalLayout checkInOut = new HorizontalLayout(checkIn, checkOut);
+    private final Label describeRoomCategory = new Label("Zimmerkategorie suchen");
 
-    private TextField roomCategoryQuery = new TextField();
-    private Button roomCategorySearch = new Button("Suchen", event -> search( Optional.of(roomCategoryQuery.getValue()) ));
-    private Grid<RoomCategory> roomCategories = new Grid<>();
+    private final TextField roomCategoryQuery = new TextField();
+    private final Button roomCategorySearch = new Button("Suchen", event -> search(Optional.of(roomCategoryQuery.getValue())));
+    private final Grid<RoomCategory> roomCategories = new Grid<>();
 
 
-    private Header header = new Header(
+    private final Header header = new Header(
             "Zimmerkategorie und Buchungszeitraum auswählen",
             "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.",
             Constants.HEADLINE_1);
 
-    private Navigation navigation = new Navigation(
-      "Verfügbare Zimmer ermitteln", false
-    );
+    private final Navigation navigation = new Navigation("Verfügbare Zimmer ermitteln", false);
 
-    private VerticalLayout roomFind = new VerticalLayout(describeRoomCategory, roomCategoryQuery, roomCategorySearch, roomCategories);
+    private final VerticalLayout roomFind = new VerticalLayout(describeRoomCategory, roomCategoryQuery, roomCategorySearch, roomCategories);
     VerticalLayout view = new VerticalLayout(header, checkInOut, roomFind, navigation);
 
-    private RoomCategoryRepo roomCategoryRepo;
+    private RoomCategory selectedRoomCategory = null;
 
-    public RoomCategoryAndBookingPeriodView(RoomCategoryRepo roomCategoryRepo) {
+    private final RoomCategoryRepo roomCategoryRepo;
+
+    public SelectRoomCategoryView(RoomCategoryRepo roomCategoryRepo) {
         this.roomCategoryRepo = roomCategoryRepo;
+        this.configureLayout();
+        this.configureRoomCategories();
+        this.attachListeners();
+
+        this.add(view);
+    }
+
+    private void configureLayout() {
+        // Set padding, spacing, etc.
         this.setPadding(true);
         this.setSpacing(true);
         this.roomFind.setSpacing(false);
         this.roomFind.setPadding(false);
         this.checkInOut.setSpacing(true);
         this.checkInOut.setPadding(false);
+        this.roomCategoryQuery.getStyle().set("margin-bottom", "15px");
+        this.roomCategories.getStyle().set("margin-top", "15px");
+    }
 
+    private void configureRoomCategories() {
         roomCategories.addColumn(RoomCategory::getName).setHeader("Zimmerkategorie").setSortable(true);
         roomCategories.addColumn(RoomCategory::getNumberOfBeds).setHeader("Betten").setSortable(true);
         roomCategories.addColumn(RoomCategory::getPrice).setHeader("Preis").setSortable(true);
         roomCategories.addColumn(RoomCategory::getMinPrice).setHeader("Min Preis").setSortable(true);
         roomCategories.setSelectionMode(Grid.SelectionMode.SINGLE);
         roomCategories.setHeight("300px");
-        roomCategories.addSelectionListener( event -> {
-            if(event.getFirstSelectedItem().isPresent()) {
-                RoomCategory roomCategory = event.getFirstSelectedItem().get();
-                GlobalState.getInstance().setSelectedRoomCategoryID(roomCategory.getId());
+        roomCategories.addSelectionListener(event -> {
+            if (event.getFirstSelectedItem().isPresent()) {
+                selectedRoomCategory = event.getFirstSelectedItem().get();
+            } else {
+                selectedRoomCategory = null;
             }
         });
+    }
 
+    private void attachListeners() {
         GlobalState globalState = GlobalState.getInstance();
 
         PropertyChangeListener listener = evt -> {
             String propertyName = evt.getPropertyName();
             Object newValue = evt.getNewValue();
 
-            if (propertyName.equals(GlobalState.SUPERVISOR_PROPERTY_NAME)) {
-                boolean newSupervisorModeActive = (boolean) newValue;
-                // Handle supervisor mode change
-            } else if (propertyName.equals(GlobalState.CURRENT_DATE_PROPERTY_NAME)) {
+            if (propertyName.equals(GlobalState.CURRENT_DATE_PROPERTY_NAME)) {
                 LocalDate newCurrentDate = (LocalDate) newValue;
                 // Handle current date change
                 this.checkIn.setValue(newCurrentDate);
@@ -102,16 +116,19 @@ public class RoomCategoryAndBookingPeriodView extends VerticalLayout implements 
 
         this.navigation.getFinish().setEnabled(true);
         this.navigation.getFinish().addClickListener(event -> {
-           if (areCheckInCheckOutDatesValid()) {
-               // Und es muss eine Zimmerkategorie ausgewählt sein.
-               //Routes.navigateTo(Routes.ROOM_AVAILABLE);
-           }
+            if (validUserInput()) {
+                globalState.setSelectedRoomCategory(this.selectedRoomCategory.getId());
+                Booking booking = new Booking(
+                        globalState.getCurrentDate(),
+                        this.checkIn.getValue(),
+                        this.checkOut.getValue(),
+                        this.selectedRoomCategory,
+
+                );
+                globalState.setCurrentBooking(booking);
+                Routes.navigateTo(Routes.SELECT_ROOM_CHECK_AVAILABLE);
+            }
         });
-
-        this.roomCategoryQuery.getStyle().set("margin-bottom", "15px");
-        this.roomCategories.getStyle().set("margin-top", "15px");
-
-        this.add(view);
     }
 
     @Override
@@ -126,10 +143,15 @@ public class RoomCategoryAndBookingPeriodView extends VerticalLayout implements 
         notification.open();
     }
 
-    private boolean areCheckInCheckOutDatesValid() {
+    private boolean validUserInput() {
         LocalDate checkInDate = this.checkIn.getValue();
         LocalDate checkOutDate = this.checkOut.getValue();
         LocalDate today = GlobalState.getInstance().getCurrentDate();
+
+        if (selectedRoomCategory == null) {
+            this.showNotification("Es wurde keine Zimmerkategorie ausgewählt.");
+            return false;
+        }
 
         // Überprüfung: checkInDate >= today
         if (checkInDate.isBefore(today)) {
@@ -145,11 +167,16 @@ public class RoomCategoryAndBookingPeriodView extends VerticalLayout implements 
 
         // Überprüfung: checkOutDate <= checkInDate + 14 Tage
         LocalDate maxCheckOutDate = checkInDate.plusDays(14);
-        return !checkOutDate.isAfter(maxCheckOutDate);
+        if (checkOutDate.isAfter(maxCheckOutDate) && !GlobalState.getInstance().isSupervisorModeActive()) {
+            this.showNotification("Die Zeitspanne zwischen Check-In und Check-Out beträgt mehr als 14 Tage.");
+            return false;
+        }
+
+        return true;
     }
 
     public void search(Optional<String> query) {
-        List<RoomCategory> items = query.map(str -> roomCategoryRepo.findByKeyword(str)).orElse(Collections.emptyList());
+        List<RoomCategory> items = query.map(roomCategoryRepo::findByKeyword).orElse(Collections.emptyList());
         roomCategories.setItems(DataProvider.ofCollection(items));
     }
 

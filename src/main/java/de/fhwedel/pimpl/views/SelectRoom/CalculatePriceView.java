@@ -15,6 +15,7 @@ import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.model.RoomCategory;
+import de.fhwedel.pimpl.repos.BookingRepo;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 
@@ -37,14 +38,18 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
 
     Navigation navigation = new Navigation("Zimmerkategorie bearbeiten", "Buchung anlegen", "Abbrechen");
 
+    private int calculatedPrice;
+
     private VerticalLayout view = new VerticalLayout(header, priceBox, navigation);
 
     private CustomerRepo customerRepo;
     private RoomCategoryRepo roomCategoryRepo;
+    private BookingRepo bookingRepo;
 
-    public CalculatePriceView(CustomerRepo customerRepo, RoomCategoryRepo roomCategoryRepo) {
+    public CalculatePriceView(CustomerRepo customerRepo, RoomCategoryRepo roomCategoryRepo, BookingRepo bookingRepo) {
         this.customerRepo = customerRepo;
         this.roomCategoryRepo = roomCategoryRepo;
+        this.bookingRepo = bookingRepo;
 
         this.priceBox.setPadding(false);
         this.priceDescription.getStyle().set("font-size", "16px");
@@ -64,20 +69,20 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Integer roomCategoryID = GlobalState.getInstance().getSelectedRoomCategoryID();
-        Integer customerID = GlobalState.getInstance().getCurrentCustomerID();
+        RoomCategory roomCategory = GlobalState.getInstance().getSelectedRoomCategory();
+        Customer customerID = GlobalState.getInstance().getCurrentCustomer();
 
-        Optional<RoomCategory> roomCategoryOptional = this.roomCategoryRepo.findById(roomCategoryID);
+
         Optional<Customer> customerOptional = this.customerRepo.findById(customerID);
 
         if (roomCategoryOptional.isPresent() && customerOptional.isPresent()) {
-            RoomCategory roomCategory = roomCategoryOptional.get();
+
             Customer customer = customerOptional.get();
 
-            int price = Math.max(roomCategory.getPrice() * (1 - (customer.getDiscount() / 100)), roomCategory.getMinPrice());
+            this.calculatedPrice = Math.max(roomCategory.getPrice() * (1 - (customer.getDiscount() / 100)), roomCategory.getMinPrice());
 
             DecimalFormat decimalFormat = new DecimalFormat("#,##0.00 €");
-            String formattedPrice = decimalFormat.format(price);
+            String formattedPrice = decimalFormat.format(this.calculatedPrice);
 
 
             this.price.setText(formattedPrice);
@@ -85,6 +90,10 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
     }
 
     private void createBooking() {
+
+        GlobalState globalState = GlobalState.getInstance();
+        globalState.getCurrentBooking().setRoomPrice(this.calculatedPrice);
+        this.bookingRepo.save(globalState.getCurrentBooking());
 
     }
 

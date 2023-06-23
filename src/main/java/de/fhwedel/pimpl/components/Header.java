@@ -1,5 +1,6 @@
 package de.fhwedel.pimpl.components;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Label;
@@ -9,20 +10,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import de.fhwedel.pimpl.Utility.GlobalState;
+import de.fhwedel.pimpl.Utility.Routes;
 
 import java.time.LocalDate;
 
 public class Header extends VerticalLayout implements BeforeEnterObserver {
 
+    private final Button searchCustomer;
+    private final Button searchBooking;
     private final Checkbox isSupervisor;
     private final DatePicker datePicker;
     private final Label headline;
     private final Label secondHeadline;
 
     public Header(String headline, String secondHeadline, String fontsize) {
+        this.searchCustomer = new Button("Kunde suchen");
+        this.searchBooking = new Button("Buchung suchen");
         this.isSupervisor = new Checkbox("Supervisor-Modus");
         this.datePicker = new DatePicker("Heute einstellen");
-        HorizontalLayout settings = new HorizontalLayout(this.isSupervisor, this.datePicker);
+        HorizontalLayout settings = new HorizontalLayout(this.searchCustomer, this.searchBooking, this.isSupervisor, this.datePicker);
         settings.setJustifyContentMode(JustifyContentMode.CENTER);
         settings.setAlignItems(Alignment.CENTER);
         settings.setPadding(false);
@@ -36,6 +42,9 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
         this.setSpacing(false);
 
         this.getStyle().set("margin-bottom", "12px");
+
+        this.searchCustomer.addClickListener(event -> Routes.navigateTo(Routes.CUSTOMER_START));
+        this.searchBooking.addClickListener(event -> Routes.navigateTo(Routes.BOOKINGS_SEARCH));
 
         this.isSupervisor.addValueChangeListener(event -> {
             boolean isChecked = event.getValue();
@@ -53,17 +62,16 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
 
         });
 
+        this.datePicker.addValueChangeListener(event -> {
+            LocalDate newValue = event.getValue();
+            LocalDate oldValue = GlobalState.getInstance().getCurrentDate();
 
-            this.datePicker.addValueChangeListener(event -> {
-                LocalDate newValue = event.getValue();
-                LocalDate oldValue = GlobalState.getInstance().getCurrentDate();
+            if (!newValue.equals(oldValue)) {
+                GlobalState.getInstance().setCurrentDate(newValue);
+                Notification.show("Aktuelles Datum verändert!");
+            }
 
-                if (!newValue.equals(oldValue)) {
-                    GlobalState.getInstance().setCurrentDate(newValue);
-                    Notification.show("Aktuelles Datum verändert!");
-                }
-
-            });
+        });
 
 
         add(settings, this.headline, this.secondHeadline);
@@ -78,6 +86,7 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
     public void setHeadline(String headline) {
         this.headline.setText(headline);
     }
+
     public void setSecondHeadline(String secondHeadline) {
         this.secondHeadline.setText(secondHeadline);
     }

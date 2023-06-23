@@ -1,5 +1,6 @@
 package de.fhwedel.pimpl.model;
 
+import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -7,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 public class Customer {
@@ -49,13 +49,14 @@ public class Customer {
 
 	public Customer() {}
 
-	public Customer(String surname, String prename, String street, String zip, String city) {
-		this.customerNumber = UUID.randomUUID().toString();
+	public Customer(String surname, String prename, String street, String zip, String city, Integer discount) {
+		this.customerNumber = GenerateUniqueNumber.createUniqueIdentifier();
 		this.surname = surname;
 		this.prename = prename;
 		this.street = street;
 		this.zip = zip;
 		this.city = city;
+		this.discount = discount;
 	}
 
 	public Integer getId() {
@@ -118,6 +119,7 @@ public class Customer {
 				", street='" + street + '\'' +
 				", zip='" + zip + '\'' +
 				", city='" + city + '\'' +
+				", discount='" + discount + '\'' +
 				'}';
 	}
 

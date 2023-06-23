@@ -52,7 +52,7 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 		customers.addSelectionListener( event -> {
 			if(event.getFirstSelectedItem().isPresent()) {
 				Customer customer = event.getFirstSelectedItem().get();
-				GlobalState.getInstance().setCurrentCustomerID(customer.getId());
+				GlobalState.getInstance().setCurrentCustomer(customer);
 				UI.getCurrent().navigate(Routes.CUSTOMER_UPDATE);
 			}
 		});

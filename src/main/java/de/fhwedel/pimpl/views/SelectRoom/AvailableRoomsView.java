@@ -74,7 +74,7 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Integer id = GlobalState.getInstance().getSelectedRoomCategoryID();
+        RoomCategory id = GlobalState.getInstance().getSelectedRoomCategory();
         Optional<RoomCategory> roomCategoryOptional = this.roomCategoryRepo.findById(id);
         if (roomCategoryOptional.isPresent()) {
             RoomCategory roomCategory = roomCategoryOptional.get();
