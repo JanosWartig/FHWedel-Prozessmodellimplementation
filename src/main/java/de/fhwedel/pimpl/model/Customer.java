@@ -7,37 +7,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
-import java.util.Random;
+import java.util.UUID;
 
 @Entity
 public class Customer {
-
-	private static int runnumber = 1;
-
-	private static String createRandomName() {
-		Random r = new Random();
-		int len = r.nextInt(8) + 2;
-		StringBuilder sb = new StringBuilder();
-
-		sb.append((char) (r.nextInt(26) + 'A'));
-		while (len-- > 0) {
-			sb.append((char) (r.nextInt(26) + 'a'));
-		}
-
-		return sb.toString();
-	}
-
-	public static Customer createRandomCustomer() {
-		Random r = new Random();
-		return new Customer(createRandomName(), createRandomName(), createRandomName(), createRandomName(), createRandomName());
-	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "customer_id")
 	private Integer id;
 
-	@Column(name = "customer_number")
+	@NotNull(message = "Pflichtangabe")
+	@Column(unique=true, updatable = false)
 	private String customerNumber;
 
 	@NotNull(message = "Pflichtangabe")
@@ -65,11 +46,11 @@ public class Customer {
 	@Max(value = 100, message = "Max Discount")
 	private Integer discount = 0;
 
+
 	public Customer() {}
 
 	public Customer(String surname, String prename, String street, String zip, String city) {
-		this();
-		this.customerNumber = String.valueOf(Integer.valueOf("1" + (runnumber++)));
+		this.customerNumber = UUID.randomUUID().toString();
 		this.surname = surname;
 		this.prename = prename;
 		this.street = street;
@@ -83,10 +64,6 @@ public class Customer {
 
 	public String getCustomerNumber() {
 		return customerNumber;
-	}
-
-	public void setCustomerNumber(String customerNumber) {
-		this.customerNumber = customerNumber;
 	}
 
 	public String getSurname() {

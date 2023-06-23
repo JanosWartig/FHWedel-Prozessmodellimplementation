@@ -13,8 +13,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
-import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
+import de.fhwedel.pimpl.components.Navigation;
+import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -33,14 +33,14 @@ public class CreateNewCustomerView extends Composite<Component> {
     private IntegerField customerDiscount = new IntegerField();
     private FormLayout customerForm = new FormLayout();
 
-    private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
+    private Navigation navigation = new Navigation(
             "Zimmerkategorie auswählen und Kunde anlegen", false
     );
 
     private VerticalLayout customersForm = new VerticalLayout(
-            new HeadlineSubheadlineView("Kunde anlegen", "Erstelle einen neuen Kunden.", Constants.HEADLINE_1),
+            new Header("Kunde anlegen", "Erstelle einen neuen Kunden.", Constants.HEADLINE_1),
             customerForm,
-           forwardBackwardNavigationView);
+            navigation);
     private VerticalLayout view;
 
     private CustomerRepo customerRepo;
@@ -55,13 +55,13 @@ public class CreateNewCustomerView extends Composite<Component> {
         customerForm.addFormItem(customerCity, "Land");
         customerForm.addFormItem(customerDiscount, "Rabatt");
 
-        this.forwardBackwardNavigationView.getNext().addClickListener(event -> {
+        this.navigation.getFinish().addClickListener(event -> {
             Customer newCustomer = this.createNewCustomer();
             GlobalState.getInstance().setCurrentCustomerID(newCustomer.getId());
-            Routes.navigateTo(Routes.ROOM_START);
+            Routes.navigateTo(Routes.SELECT_ROOM_START);
         });
 
-        this.forwardBackwardNavigationView.setNext(true);
+        this.navigation.setFinishButtonActive(true);
 
         view = new VerticalLayout(customersForm);
     }
@@ -72,12 +72,13 @@ public class CreateNewCustomerView extends Composite<Component> {
     }
 
     private Customer createNewCustomer() {
-        Customer customer = new Customer();
-        customer.setSurname(this.customerSurname.getValue());
-        customer.setPrename(this.customerPrename.getValue());
-        customer.setStreet(this.customerStreet.getValue());
-        customer.setZip(this.customerZIP.getValue());
-        customer.setCity(this.customerCity.getValue());
+        Customer customer = new Customer(
+                this.customerSurname.getValue(),
+                this.customerPrename.getValue(),
+                this.customerStreet.getValue(),
+                this.customerZIP.getValue(),
+                this.customerCity.getValue()
+                );
 
         this.customerRepo.save(customer);
 

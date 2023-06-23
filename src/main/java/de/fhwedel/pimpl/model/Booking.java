@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 public class Booking {
@@ -26,7 +27,7 @@ public class Booking {
 
     @NotNull(message = "Pflichtangabe")
     @Column(unique=true, updatable = false)
-    private Integer bookingNumber;
+    private String bookingNumber;
 
     @NotNull(message = "Pflichtangabe")
     private LocalDate bookingDate;
@@ -55,7 +56,7 @@ public class Booking {
 
     public Booking() { }
 
-    public Booking(Integer bookingNumber, LocalDate bookingDate, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate) {
+    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate) {
         if (checkInShould.isBefore(bookingDate) || checkInIs.isBefore(bookingDate)) {
             throw new IllegalArgumentException("Check-In-Datum muss größer oder gleich dem Buchungsdatum sein.");
         }
@@ -63,7 +64,7 @@ public class Booking {
             throw new IllegalArgumentException("Check-Out-Datum muss größer dem Buchungsdatum sein.");
         }
 
-        this.bookingNumber = bookingNumber;
+        this.bookingNumber = UUID.randomUUID().toString();;
         this.bookingDate = bookingDate;
         this.checkInShould = checkInShould;
         this.checkInIs = checkInIs;
@@ -73,13 +74,10 @@ public class Booking {
         this.licensePlate = licensePlate;
     }
 
-    public Integer getBookingNumber() {
+    public String getBookingNumber() {
         return bookingNumber;
     }
 
-    public void setBookingNumber(Integer bookingNumber) {
-        this.bookingNumber = bookingNumber;
-    }
 
     public LocalDate getBookingDate() {
         return bookingDate;

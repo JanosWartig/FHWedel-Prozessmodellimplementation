@@ -17,8 +17,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
-import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
+import de.fhwedel.pimpl.components.Navigation;
+import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -51,21 +51,21 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     private Button customerUpdate = new Button("Aktualisieren");
     private Button customerDelete = new Button("Löschen");
 
-    private HeadlineSubheadlineView headlineSubheadlineView = new HeadlineSubheadlineView(this.headlineCheckCustomer,
+    private Header header = new Header(this.headlineCheckCustomer,
             this.subheadlineCheckCustomer, Constants.HEADLINE_1);
 
-    private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
+    private Navigation navigation = new Navigation(
             "Zimmerkategorie auswählen", false
     );
 
     private HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
 
     private VerticalLayout customersForm = new VerticalLayout(
-            headlineSubheadlineView,
+            header,
             customerForm,
             customerControl,
             customerEdit,
-            this.forwardBackwardNavigationView);
+            this.navigation);
     private VerticalLayout view;
 
     private CustomerRepo customerRepo;
@@ -85,9 +85,9 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
 
-        this.forwardBackwardNavigationView.setNext(true);
-        this.forwardBackwardNavigationView.getNext().addClickListener(event -> {
-            Routes.navigateTo(Routes.ROOM_START);
+        this.navigation.setFinishButtonActive(true);
+        this.navigation.getFinish().addClickListener(event -> {
+            Routes.navigateTo(Routes.SELECT_ROOM_START);
         });
 
         view = new VerticalLayout(customersForm);
@@ -129,15 +129,15 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerControl.setVisible(false);
         this.customerEdit.setVisible(true);
 
-        this.headlineSubheadlineView.setHeadline(this.headlineCheckCustomer);
-        this.headlineSubheadlineView.setSubheadline(this.subheadlineCheckCustomer);
+        this.header.setHeadline(this.headlineCheckCustomer);
+        this.header.setSecondHeadline(this.subheadlineCheckCustomer);
     }
 
     private void initEditCustomerView() {
         this.customerControl.setVisible(true);
         this.customerEdit.setVisible(false);
-        this.headlineSubheadlineView.setHeadline(this.headlineUpdateCustomer);
-        this.headlineSubheadlineView.setSubheadline(this.subheadlineUpdateCustomer);
+        this.header.setHeadline(this.headlineUpdateCustomer);
+        this.header.setSecondHeadline(this.subheadlineUpdateCustomer);
         this.customerSurname.setEnabled(true);
         this.customerPrename.setEnabled(true);
         this.street.setEnabled(true);

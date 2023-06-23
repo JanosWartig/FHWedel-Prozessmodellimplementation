@@ -19,7 +19,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
 import javax.sql.DataSource;
@@ -32,10 +31,6 @@ public class PIMPLPersistence {
 	public CommandLineRunner exampleData(PIMPLConfig config, CustomerRepo cs, RoomCategoryRepo rc, RoomRepo roomRepo) {
 		return (args) -> {
 			if (config.isRegenerate()) {
-				for (int i = 0; i < 25; i++) {
-					Customer c = Customer.createRandomCustomer();
-					cs.save(c);
-				}
 				// Room Categories
 				RoomCategory small = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Small, 1, 20, 10);
 				RoomCategory big = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Big, 5, 100, 50);

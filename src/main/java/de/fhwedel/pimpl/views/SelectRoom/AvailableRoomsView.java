@@ -1,8 +1,6 @@
 package de.fhwedel.pimpl.views.SelectRoom;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -13,8 +11,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.ForwardBackwardNavigationView;
-import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
+import de.fhwedel.pimpl.components.Navigation;
+import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Room;
 import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
@@ -24,34 +22,27 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("serial")
-@Route(Routes.ROOM_AVAILABLE)
+@Route(Routes.SELECT_ROOM_CHECK_AVAILABLE)
 @SpringComponent
 @UIScope
-public class AvailableRooms extends VerticalLayout implements BeforeEnterObserver {
+public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObserver {
 
-    private HeadlineSubheadlineView headlineSubheadlineView = new HeadlineSubheadlineView(
-            "Verfügbare Zimmer ermitteln",
-            "Wähle ein Zimmer aus.",
-            Constants.HEADLINE_1);
-
-    private ForwardBackwardNavigationView forwardBackwardNavigationView = new ForwardBackwardNavigationView(
-            "Kein passendes Zimmer gefunden", "Zimmerkategorie bearbeiten"
+    private final Navigation navigation = new Navigation(
+            "Zimmerkategorie bearbeiten", "Preis bestimmen", "Abbruch"
     );
 
-    private Button calculatePrice = new Button("Preis bestimmen");
+    private final Grid<Room> rooms = new Grid<>();
 
-    private Grid<Room> rooms = new Grid<>();
+    private final RoomCategoryRepo roomCategoryRepo;
+    private final RoomRepo roomRepo;
 
-    private VerticalLayout view = new VerticalLayout(headlineSubheadlineView, rooms, forwardBackwardNavigationView, calculatePrice);
-
-    private RoomCategoryRepo roomCategoryRepo;
-    private RoomRepo roomRepo;
-
-    public AvailableRooms(RoomCategoryRepo roomCategoryRepo, RoomRepo roomRepo) {
+    public AvailableRoomsView(RoomCategoryRepo roomCategoryRepo, RoomRepo roomRepo) {
         this.roomCategoryRepo = roomCategoryRepo;
         this.roomRepo = roomRepo;
 
-        this.forwardBackwardNavigationView.getBack().addClickListener(event -> Routes.navigateTo(Routes.ROOM_START));
+        this.navigation.getEdit().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_START));
+        this.navigation.getCancel().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
+        this.navigation.setFinishButtonActive(false);
 
         rooms.addColumn(Room::getRoomNumber).setHeader("Zimmernummer").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getName()).setHeader("Zimmerkategorie").setSortable(true);
@@ -62,27 +53,22 @@ public class AvailableRooms extends VerticalLayout implements BeforeEnterObserve
         rooms.setHeight("300px");
         rooms.addSelectionListener(item -> {
             if(item.getFirstSelectedItem().isPresent()) {
-                Room room = item.getFirstSelectedItem().get();
-                this.forwardBackwardNavigationView.getNext().setVisible(false);
-                this.forwardBackwardNavigationView.getBack().setVisible(false);
-                this.calculatePrice.setVisible(true);
 
-                this.calculatePrice.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                this.calculatePrice.setIconAfterText(true);
+                this.navigation.setFinishButtonActive(true);
 
-                calculatePrice.addClickListener(event -> {
-                    Routes.navigateTo(Routes.ROOM_CALCULATE_PRICE);
+                this.navigation.getFinish().addClickListener(event -> {
+                    Routes.navigateTo(Routes.SELECT_ROOM_CALCULATE_PRICE);
                 });
             } else {
-                this.forwardBackwardNavigationView.getBack().setVisible(true);
-                this.forwardBackwardNavigationView.getNext().setVisible(true);
-                this.calculatePrice.setVisible(false);
-                this.forwardBackwardNavigationView.getNext().getStyle().set("color", "red");
+                this.navigation.setFinishButtonActive(false);
             }
         });
 
-        this.calculatePrice.setVisible(false);
-
+        Header header = new Header(
+                "Verfügbare Zimmer ermitteln",
+                "Wähle ein Zimmer aus.",
+                Constants.HEADLINE_1);
+        VerticalLayout view = new VerticalLayout(header, rooms, navigation);
         this.add(view);
     }
 
@@ -96,9 +82,6 @@ public class AvailableRooms extends VerticalLayout implements BeforeEnterObserve
 
             if (!rooms.isEmpty()) {
                 this.rooms.setItems(DataProvider.ofCollection(rooms));
-            } else {
-                // Es wurden keine Zimmer gefunden
-                Routes.navigateTo(Routes.ROOM_NOT_FOUND);
             }
 
         }

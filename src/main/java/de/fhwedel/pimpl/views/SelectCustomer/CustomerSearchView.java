@@ -18,7 +18,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.HeadlineSubheadlineView;
+import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -37,7 +37,7 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 	private Grid<Customer> customers = new Grid<>();
 	private Button navigateToCreateNewCustomer = new Button("Neuen Kunden anlegen", event -> UI.getCurrent().navigate("/create-new-customer"));
 	private VerticalLayout customersForm = new VerticalLayout(
-			new HeadlineSubheadlineView("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens.", Constants.HEADLINE_1),
+			new Header("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens.", Constants.HEADLINE_1),
 			customersQuery, customersSearch, customers, navigateToCreateNewCustomer);
 	private VerticalLayout view;
 	private CustomerRepo customerRepo;
@@ -75,7 +75,7 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 	}
 
 	public void search(Optional<String> query) {
-		List<Customer> items = query.map(str -> customerRepo.findBySurnameContaining(str)).orElse(Collections.emptyList());
+		List<Customer> items = query.map(str -> customerRepo.findAll()).orElse(Collections.emptyList());
 		customers.setItems(DataProvider.ofCollection(items));
 		if (items.isEmpty()) {
 			this.navigateToCreateNewCustomer.setEnabled(true);
