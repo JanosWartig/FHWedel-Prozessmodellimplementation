@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Booking {
@@ -20,7 +22,7 @@ public class Booking {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
     private Integer id;
 
@@ -61,9 +63,16 @@ public class Booking {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Guest> guests;
+
+    @OneToMany
+    @JoinColumn(name = "claims_id")
+    private ArrayList<Claims> claims;
+
     public Booking() { }
 
-    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkOutShould, Customer customer, Room room) {
+    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkOutShould, Customer customer) {
         if (checkInShould.isBefore(bookingDate)) {
             throw new IllegalArgumentException("Check-In-Datum muss größer oder gleich dem Buchungsdatum sein.");
         }
@@ -76,7 +85,7 @@ public class Booking {
         this.checkInShould = checkInShould;
         this.checkOutShould = checkOutShould;
         this.customer = customer;
-        this.room = room;
+        this.guests = new ArrayList<>();
     }
 
     public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate) {
@@ -95,6 +104,7 @@ public class Booking {
         this.checkOutIs = checkOutIs;
         this.roomPrice = roomPrice;
         this.licensePlate = licensePlate;
+        this.guests = new ArrayList<>();
     }
 
     public String getBookingNumber() {
@@ -188,5 +198,39 @@ public class Booking {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public List<Guest> getGuests() {
+        return guests;
+    }
+
+    public void addGuest(Guest guest) {
+        guest.setParentBooking(this);
+        this.guests.add(guest);
+    }
+
+    public void setGuests(List<Guest> guests) {
+        this.guests = guests;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", bookingNumber='" + bookingNumber + '\'' +
+                ", bookingDate=" + bookingDate +
+                ", bookingState=" + bookingState +
+                ", comment='" + comment + '\'' +
+                ", checkInShould=" + checkInShould +
+                ", checkInIs=" + checkInIs +
+                ", checkOutShould=" + checkOutShould +
+                ", checkOutIs=" + checkOutIs +
+                ", roomPrice=" + roomPrice +
+                ", licensePlate='" + licensePlate + '\'' +
+                ", customer=" + customer +
+                ", room=" + room +
+                ", guests=" + guests +
+                ", claims=" + claims +
+                '}';
     }
 }

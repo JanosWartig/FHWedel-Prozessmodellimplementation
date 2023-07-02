@@ -46,7 +46,6 @@ public class SearchBookingsView extends VerticalLayout implements BeforeEnterObs
 
         customersForm.setPadding(false);
 
-
         view = new VerticalLayout(customersForm);
 
         add(view);

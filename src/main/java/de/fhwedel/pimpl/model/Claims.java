@@ -29,6 +29,10 @@ public class Claims {
     @NotNull(message = "Pflichtangabe")
     private LocalDate date;
 
+    @ManyToOne
+    @JoinColumn(name = "add_service_id")
+    private AdditionalService additionalService;
+
     public Claims() { }
     public Claims(Integer amount, Integer price, Integer valueAddedTax, LocalDate date) {
         this.amount = amount;

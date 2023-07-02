@@ -15,11 +15,9 @@ import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Room;
 import de.fhwedel.pimpl.model.RoomCategory;
-import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 import de.fhwedel.pimpl.repos.RoomRepo;
 
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("serial")
 @Route(Routes.SELECT_ROOM_CHECK_AVAILABLE)
@@ -33,11 +31,9 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
 
     private final Grid<Room> rooms = new Grid<>();
 
-    private final RoomCategoryRepo roomCategoryRepo;
     private final RoomRepo roomRepo;
 
-    public AvailableRoomsView(RoomCategoryRepo roomCategoryRepo, RoomRepo roomRepo) {
-        this.roomCategoryRepo = roomCategoryRepo;
+    public AvailableRoomsView(RoomRepo roomRepo) {
         this.roomRepo = roomRepo;
 
         this.navigation.getEdit().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_START));
@@ -52,11 +48,13 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
         rooms.setSelectionMode(Grid.SelectionMode.SINGLE);
         rooms.setHeight("300px");
         rooms.addSelectionListener(item -> {
-            if(item.getFirstSelectedItem().isPresent()) {
+            if (item.getFirstSelectedItem().isPresent()) {
 
                 this.navigation.setFinishButtonActive(true);
 
                 this.navigation.getFinish().addClickListener(event -> {
+                    GlobalState globalState = GlobalState.getInstance();
+                    globalState.getCurrentBooking().setRoom(item.getFirstSelectedItem().get());
                     Routes.navigateTo(Routes.SELECT_ROOM_CALCULATE_PRICE);
                 });
             } else {
@@ -64,27 +62,21 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
             }
         });
 
-        Header header = new Header(
-                "Verfügbare Zimmer ermitteln",
-                "Wähle ein Zimmer aus.",
-                Constants.HEADLINE_1);
+        Header header = new Header("Verfügbare Zimmer ermitteln", "Wähle ein Zimmer aus.", Constants.HEADLINE_1);
         VerticalLayout view = new VerticalLayout(header, rooms, navigation);
         this.add(view);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        RoomCategory id = GlobalState.getInstance().getSelectedRoomCategory();
-        Optional<RoomCategory> roomCategoryOptional = this.roomCategoryRepo.findById(id);
-        if (roomCategoryOptional.isPresent()) {
-            RoomCategory roomCategory = roomCategoryOptional.get();
-            List<Room> rooms = roomRepo.findByRoomCategory(roomCategory);
+        RoomCategory roomCategory = GlobalState.getInstance().getSelectedRoomCategory();
 
-            if (!rooms.isEmpty()) {
-                this.rooms.setItems(DataProvider.ofCollection(rooms));
-            }
+        List<Room> rooms = roomRepo.findByRoomCategory(roomCategory);
 
+        if (!rooms.isEmpty()) {
+            this.rooms.setItems(DataProvider.ofCollection(rooms));
         }
+
     }
 
 

@@ -70,23 +70,15 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         RoomCategory roomCategory = GlobalState.getInstance().getSelectedRoomCategory();
-        Customer customerID = GlobalState.getInstance().getCurrentCustomer();
+        Customer customer = GlobalState.getInstance().getCurrentCustomer();
+
+        this.calculatedPrice = Math.max(roomCategory.getPrice() * (1 - (customer.getDiscount() / 100)), roomCategory.getMinPrice());
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00 €");
+        String formattedPrice = decimalFormat.format(this.calculatedPrice);
 
 
-        Optional<Customer> customerOptional = this.customerRepo.findById(customerID);
-
-        if (roomCategoryOptional.isPresent() && customerOptional.isPresent()) {
-
-            Customer customer = customerOptional.get();
-
-            this.calculatedPrice = Math.max(roomCategory.getPrice() * (1 - (customer.getDiscount() / 100)), roomCategory.getMinPrice());
-
-            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00 €");
-            String formattedPrice = decimalFormat.format(this.calculatedPrice);
-
-
-            this.price.setText(formattedPrice);
-        }
+        this.price.setText(formattedPrice);
     }
 
     private void createBooking() {
@@ -94,10 +86,9 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
         GlobalState globalState = GlobalState.getInstance();
         globalState.getCurrentBooking().setRoomPrice(this.calculatedPrice);
         this.bookingRepo.save(globalState.getCurrentBooking());
+        Routes.navigateTo(Routes.GUEST_ADD_GUEST);
 
     }
-
-
 
 
 }

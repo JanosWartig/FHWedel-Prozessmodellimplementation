@@ -17,6 +17,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
+import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.components.Header;
@@ -117,13 +118,12 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
         this.navigation.getFinish().setEnabled(true);
         this.navigation.getFinish().addClickListener(event -> {
             if (validUserInput()) {
-                globalState.setSelectedRoomCategory(this.selectedRoomCategory.getId());
+                globalState.setSelectedRoomCategory(this.selectedRoomCategory);
                 Booking booking = new Booking(
                         globalState.getCurrentDate(),
                         this.checkIn.getValue(),
                         this.checkOut.getValue(),
-                        this.selectedRoomCategory,
-
+                        globalState.getCurrentCustomer()
                 );
                 globalState.setCurrentBooking(booking);
                 Routes.navigateTo(Routes.SELECT_ROOM_CHECK_AVAILABLE);
@@ -137,38 +137,32 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
         this.checkOut.setValue(GlobalState.getInstance().getCurrentDate().plusDays(1));
     }
 
-    private void showNotification(String message) {
-        Notification notification = new Notification(message, 3000, Notification.Position.BOTTOM_CENTER);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.open();
-    }
-
     private boolean validUserInput() {
         LocalDate checkInDate = this.checkIn.getValue();
         LocalDate checkOutDate = this.checkOut.getValue();
         LocalDate today = GlobalState.getInstance().getCurrentDate();
 
         if (selectedRoomCategory == null) {
-            this.showNotification("Es wurde keine Zimmerkategorie ausgewählt.");
+            Notifications.showErrorNotification("Es wurde keine Zimmerkategorie ausgewählt.");
             return false;
         }
 
         // Überprüfung: checkInDate >= today
         if (checkInDate.isBefore(today)) {
-            this.showNotification("Das Check-In Datum liegt in der Vergangenheit.");
+            Notifications.showErrorNotification("Das Check-In Datum liegt in der Vergangenheit.");
             return false;
         }
 
         // Überprüfung: checkOutDate > checkInDate
         if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
-            this.showNotification("Das Check-Out Datum liegt vor dem Check-In Datum.");
+            Notifications.showErrorNotification("Das Check-Out Datum liegt vor dem Check-In Datum.");
             return false;
         }
 
         // Überprüfung: checkOutDate <= checkInDate + 14 Tage
         LocalDate maxCheckOutDate = checkInDate.plusDays(14);
         if (checkOutDate.isAfter(maxCheckOutDate) && !GlobalState.getInstance().isSupervisorModeActive()) {
-            this.showNotification("Die Zeitspanne zwischen Check-In und Check-Out beträgt mehr als 14 Tage.");
+            Notifications.showErrorNotification("Die Zeitspanne zwischen Check-In und Check-Out beträgt mehr als 14 Tage.");
             return false;
         }
 

@@ -3,6 +3,7 @@ package de.fhwedel.pimpl.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 
 @Entity
@@ -22,17 +23,23 @@ public class Guest {
     @NotNull(message = "Pflichtangabe")
     private LocalDate birthDate;
 
-    // Optional
+    @Nullable
     private LocalDate checkIn;
 
-    // Optional
+    @Nullable
     private LocalDate checkOut;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
 
     public Guest() { }
 
-    public Guest(String name, String firstName, LocalDate birthDate, LocalDate checkIn, LocalDate checkOut) {
-        if (checkIn.isAfter(checkOut)) {
-            throw new IllegalArgumentException("Check-In-Datum muss kleiner als Check-Out-Datum sein.");
+    public Guest(String name, String firstName, LocalDate birthDate, @Nullable LocalDate checkIn, @Nullable LocalDate checkOut) {
+        if (checkIn != null && checkOut != null) {
+            if (checkIn.isAfter(checkOut)) {
+                throw new IllegalArgumentException("Check-In-Datum muss kleiner als Check-Out-Datum sein.");
+            }
         }
         this.name = name;
         this.firstName = firstName;
@@ -65,19 +72,38 @@ public class Guest {
         this.birthDate = birthDate;
     }
 
+    @Nullable
     public LocalDate getCheckIn() {
         return checkIn;
     }
 
-    public void setCheckIn(LocalDate checkIn) {
+    public void setCheckIn(@Nullable LocalDate checkIn) {
         this.checkIn = checkIn;
     }
 
+    @Nullable
     public LocalDate getCheckOut() {
         return checkOut;
     }
 
-    public void setCheckOut(LocalDate checkOut) {
+    public void setCheckOut(@Nullable LocalDate checkOut) {
         this.checkOut = checkOut;
+    }
+
+    public void setParentBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    @Override
+    public String toString() {
+        return "Guest{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", birthDate=" + birthDate +
+                ", checkIn=" + checkIn +
+                ", checkOut=" + checkOut +
+                ", booking=" + booking +
+                '}';
     }
 }

@@ -14,6 +14,8 @@ public class Routes {
     public static final String SELECT_ROOM_CALCULATE_PRICE = "/calculate-price";
 
 
+    // Guests
+    public static final String GUEST_ADD_GUEST = "/add-guests";
     public static final String BOOKINGS_SEARCH = "/booking-search";
 
     public static void navigateTo(String route) {

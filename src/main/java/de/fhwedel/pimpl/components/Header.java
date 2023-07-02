@@ -43,8 +43,14 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
 
         this.getStyle().set("margin-bottom", "12px");
 
-        this.searchCustomer.addClickListener(event -> Routes.navigateTo(Routes.CUSTOMER_START));
-        this.searchBooking.addClickListener(event -> Routes.navigateTo(Routes.BOOKINGS_SEARCH));
+        this.searchCustomer.addClickListener(event -> {
+            GlobalState.getInstance().resetGlobalState();
+            Routes.navigateTo(Routes.CUSTOMER_START);
+        });
+        this.searchBooking.addClickListener(event -> {
+            GlobalState.getInstance().resetGlobalState();
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+        });
 
         this.isSupervisor.addValueChangeListener(event -> {
             boolean isChecked = event.getValue();

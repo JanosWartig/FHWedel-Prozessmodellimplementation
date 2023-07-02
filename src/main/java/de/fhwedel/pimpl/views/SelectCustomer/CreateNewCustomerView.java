@@ -7,11 +7,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.PropertyId;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
+import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.components.Header;
@@ -85,4 +88,45 @@ public class CreateNewCustomerView extends Composite<Component> {
 
         return customer;
     }
+
+    /**
+    private boolean validateFields() {
+        Validator<String> notEmptyValidator = Validator.notEmpty("Dieses Feld darf nicht leer sein");
+        Validator<String> minSizeValidator = Validator.min(2, "Mindestens zwei Zeichen erforderlich");
+
+        ValidationResult surnameValidation = notEmptyValidator.apply(customerSurname.getValue());
+        ValidationResult prenameValidation = notEmptyValidator.apply(customerPrename.getValue());
+        ValidationResult streetValidation = notEmptyValidator.apply(customerStreet.getValue());
+        ValidationResult zipValidation = notEmptyValidator.apply(customerZIP.getValue());
+        ValidationResult cityValidation = notEmptyValidator.apply(customerCity.getValue());
+
+        if (surnameValidation.isError()) {
+            Notifications.showErrorNotification(surnameValidation.getErrorMessage());
+            return false;
+        }
+
+        if (prenameValidation.isError()) {
+            Notifications.showErrorNotification(prenameValidation.getErrorMessage());
+            return false;
+        }
+
+        if (streetValidation.isError()) {
+            Notifications.showErrorNotification(streetValidation.getErrorMessage());
+            return false;
+        }
+
+        if (zipValidation.isError()) {
+            Notifications.showErrorNotification(zipValidation.getErrorMessage());
+            return false;
+        }
+
+        if (cityValidation.isError()) {
+            Notifications.showErrorNotification(cityValidation.getErrorMessage());
+            return false;
+        }
+
+        return true;
+    }
+     */
+
 }

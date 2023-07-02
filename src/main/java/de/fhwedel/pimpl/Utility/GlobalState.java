@@ -13,9 +13,9 @@ public class GlobalState {
     private static GlobalState globalState;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
-    private Customer currentCustomer;
+    private Customer currentCustomer = null;
     private Booking currentBooking = null;
-    private RoomCategory selectedRoomCategory;
+    private RoomCategory selectedRoomCategory = null;
 
     public static String SUPERVISOR_PROPERTY_NAME = "isSupervisorModeActive";
     public static String CURRENT_DATE_PROPERTY_NAME = "currentDate";
@@ -29,6 +29,14 @@ public class GlobalState {
             globalState = new GlobalState();
         }
         return globalState;
+    }
+
+    public void resetGlobalState() {
+        currentCustomer = null;
+        currentBooking = null;
+        selectedRoomCategory = null;
+        isSupervisorModeActive = false;
+        currentDate = LocalDate.now();
     }
 
     public Customer getCurrentCustomer() {
