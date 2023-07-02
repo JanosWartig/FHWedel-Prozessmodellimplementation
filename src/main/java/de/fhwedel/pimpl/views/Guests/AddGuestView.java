@@ -11,16 +11,11 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
-import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Notifications;
-import de.fhwedel.pimpl.Utility.Routes;
+import de.fhwedel.pimpl.Utility.*;
 import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.model.Guest;
 import de.fhwedel.pimpl.repos.BookingRepo;
-
-import java.util.List;
 
 @SuppressWarnings("serial")
 @Route(Routes.GUEST_ADD_GUEST)
@@ -51,8 +46,12 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
         this.configureLayout();
 
         this.navigation.getFinish().addClickListener(event -> {
-            GlobalState globalState = GlobalState.getInstance();
-            System.out.println(globalState.getCurrentBooking().getRoom().getRoomCategory().getNumberOfBeds());
+            CustomDialog customDialog = new CustomDialog("Buchungsbestätigung wurde versendet.",  "Zur Kenntnis genommen");
+            customDialog.open();
+            customDialog.getCloseButton().addClickListener(closeEvent -> {
+                customDialog.getDialog().close();
+                Routes.navigateTo(Routes.EVENTS_AFTER_BOOKING_COMPLETED);
+            });
         });
 
         this.add(view);
@@ -82,9 +81,20 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
                     this.guestCheckIn.getValue(),
                     this.guestCheckOut.getValue());
 
-            GlobalState.getInstance().getCurrentBooking().addGuest(newGuest);
+            GlobalState globalState = GlobalState.getInstance();
 
-            this.repo.save(GlobalState.getInstance().getCurrentBooking());
+            int numberOfBeds = globalState.getCurrentBooking().getRoom().getRoomCategory().getNumberOfBeds();
+            int currentGuests = globalState.getCurrentBooking().getGuests().size();
+            boolean isSupervisor = globalState.isSupervisorModeActive();
+
+            if (currentGuests >= numberOfBeds && !isSupervisor) {
+                Notifications.showErrorNotification("Die maximale Anzahl an Gästen für dieses Zimmer ist erreicht.");
+                return;
+            }
+
+            globalState.getCurrentBooking().addGuest(newGuest);
+
+            this.repo.save(globalState.getCurrentBooking());
         });
     }
 

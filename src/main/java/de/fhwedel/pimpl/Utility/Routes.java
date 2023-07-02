@@ -16,6 +16,11 @@ public class Routes {
 
     // Guests
     public static final String GUEST_ADD_GUEST = "/add-guests";
+
+
+    // Events
+    public static final String EVENTS_AFTER_BOOKING_COMPLETED = "/simulate-events-after-booking-completed";
+
     public static final String BOOKINGS_SEARCH = "/booking-search";
 
     public static void navigateTo(String route) {
