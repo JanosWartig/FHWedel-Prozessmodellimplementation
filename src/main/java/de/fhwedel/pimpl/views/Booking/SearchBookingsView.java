@@ -35,7 +35,7 @@ public class SearchBookingsView extends VerticalLayout implements BeforeEnterObs
     private Grid<Booking> bookings = new Grid<>();
 
     private VerticalLayout customersForm = new VerticalLayout(
-            new Header("Buchung suchen", "Suche nach einer Buchung.", Constants.HEADLINE_1),
+            new Header("Buchung suchen", "Suche nach einer Buchung."),
             bookingQuery, bookingSearch, bookings);
     private VerticalLayout view;
     private BookingRepo bookingRepo;

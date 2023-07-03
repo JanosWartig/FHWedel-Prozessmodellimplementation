@@ -37,7 +37,7 @@ public class CustomerSearchView extends Composite<Component> implements BeforeEn
 	private Grid<Customer> customers = new Grid<>();
 	private Button navigateToCreateNewCustomer = new Button("Neuen Kunden anlegen", event -> UI.getCurrent().navigate("/create-new-customer"));
 	private VerticalLayout customersForm = new VerticalLayout(
-			new Header("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens.", Constants.HEADLINE_1),
+			new Header("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens."),
 			customersQuery, customersSearch, customers, navigateToCreateNewCustomer);
 	private VerticalLayout view;
 	private CustomerRepo customerRepo;

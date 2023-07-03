@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 
@@ -23,7 +24,7 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
     private final Label headline;
     private final Label secondHeadline;
 
-    public Header(String headline, String secondHeadline, String fontsize) {
+    public Header(String headline, String secondHeadline) {
         this.searchCustomer = new Button("Kunde suchen");
         this.searchBooking = new Button("Buchung suchen");
         this.isSupervisor = new Checkbox("Supervisor-Modus");
@@ -36,7 +37,7 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
         this.headline = new Label(headline);
         this.secondHeadline = new Label(secondHeadline);
 
-        this.headline.getStyle().set("font-weight", "bold").set("font-size", fontsize).set("margin-top", "30px");
+        this.headline.getStyle().set("font-weight", "bold").set("font-size", Constants.HEADLINE_1).set("margin-top", "30px");
 
         this.setPadding(false);
         this.setSpacing(false);

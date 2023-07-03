@@ -14,8 +14,7 @@ import de.fhwedel.pimpl.components.Header;
 @UIScope
 public class ErrorView extends VerticalLayout {
 
-    Header header = new Header("Reservierung gescheitert",
-            "Entweder ist kein Zimmer zur Verfügung oder die Preisbestimmung ist gescheitert.", Constants.HEADLINE_1);
+    Header header = new Header("Reservierung gescheitert", "Entweder ist kein Zimmer zur Verfügung oder die Preisbestimmung ist gescheitert.");
 
     public ErrorView() {
         VerticalLayout view = new VerticalLayout(header);

@@ -28,8 +28,7 @@ import java.util.Optional;
 @UIScope
 public class CalculatePriceView extends VerticalLayout implements BeforeEnterObserver {
 
-    Header header = new Header("Preis bestimmen",
-            "Hier wird der Preis für den Kunden berechnet.", Constants.HEADLINE_1);
+    Header header = new Header("Preis bestimmen", "Hier wird der Preis für den Kunden berechnet.");
 
     Label priceDescription = new Label("Der Preis für das Zimmer beträgt: ");
     Label price = new Label();

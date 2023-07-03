@@ -25,7 +25,7 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
 
     private final Navigation navigation = new Navigation("Alle Gäste erfasst und Buchungsbestätigung versenden", false);
 
-    private final Header header = new Header("Gäste hinzufügen", "Füge der aktuellen Buchung Gäste hinzu.", Constants.HEADLINE_1);
+    private final Header header = new Header("Gäste hinzufügen", "Füge der aktuellen Buchung Gäste hinzu.");
 
     private final Button addGuest = new Button("Gast hinzufügen");
 

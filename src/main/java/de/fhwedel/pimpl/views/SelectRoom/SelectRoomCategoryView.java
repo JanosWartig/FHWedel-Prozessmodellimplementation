@@ -48,9 +48,7 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
 
 
     private final Header header = new Header(
-            "Zimmerkategorie und Buchungszeitraum auswählen",
-            "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.",
-            Constants.HEADLINE_1);
+            "Zimmerkategorie und Buchungszeitraum auswählen", "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.");
 
     private final Navigation navigation = new Navigation("Verfügbare Zimmer ermitteln", false);
 

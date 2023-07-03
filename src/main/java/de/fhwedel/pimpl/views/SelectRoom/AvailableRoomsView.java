@@ -62,7 +62,7 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
             }
         });
 
-        Header header = new Header("Verfügbare Zimmer ermitteln", "Wähle ein Zimmer aus.", Constants.HEADLINE_1);
+        Header header = new Header("Verfügbare Zimmer ermitteln", "Wähle ein Zimmer aus.");
         VerticalLayout view = new VerticalLayout(header, rooms, navigation);
         this.add(view);
     }

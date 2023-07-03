@@ -46,8 +46,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     private final Button customerUpdate = new Button("Aktualisieren");
     private final Button customerDelete = new Button("Löschen");
 
-    private final Header header = new Header(this.headlineCheckCustomer,
-            this.subheadlineCheckCustomer, Constants.HEADLINE_1);
+    private final Header header = new Header(this.headlineCheckCustomer, this.subheadlineCheckCustomer);
 
     private final HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
 

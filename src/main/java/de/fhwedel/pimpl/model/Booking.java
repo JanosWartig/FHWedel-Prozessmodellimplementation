@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 public class Booking {
 
-    private enum BookingState {
+    public enum BookingState {
         Reserved,
         CheckedIn,
         CheckedOut,
@@ -34,6 +34,7 @@ public class Booking {
     private LocalDate bookingDate;
 
     @NotNull(message = "Pflichtangabe")
+    @Enumerated(EnumType.STRING)
     private BookingState bookingState = BookingState.Reserved;
 
     @NotNull(message = "Pflichtangabe")

@@ -41,7 +41,7 @@ public class CreateNewCustomerView extends Composite<Component> {
     );
 
     private VerticalLayout customersForm = new VerticalLayout(
-            new Header("Kunde anlegen", "Erstelle einen neuen Kunden.", Constants.HEADLINE_1),
+            new Header("Kunde anlegen", "Erstelle einen neuen Kunden."),
             customerForm,
             navigation);
     private VerticalLayout view;
