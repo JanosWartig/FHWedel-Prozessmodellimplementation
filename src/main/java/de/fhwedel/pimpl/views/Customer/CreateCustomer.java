@@ -20,7 +20,7 @@ import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
-@Route(Routes.CUSTOMER_CREATE)
+@Route(Routes.CREATE_CUSTOMER)
 @SpringComponent
 @UIScope
 public class CreateCustomer extends Composite<Component> implements BeforeEnterObserver {
@@ -35,9 +35,7 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
     private final IntegerField customerDiscount = new IntegerField();
     private final FormLayout customerForm = new FormLayout();
 
-    private final Navigation navigation = new Navigation(
-            "Zimmerkategorie auswählen und Kunde anlegen", false
-    );
+    private final Navigation navigation = new Navigation("Kunde suchen","Zimmerkategorie auswählen und Kunde anlegen");
 
     private final Header header = new Header("Kunde anlegen", "Erstelle einen neuen Kunden.");
 
@@ -62,12 +60,14 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
         customerDiscount.setValue(0);
         customerDiscount.setEnabled(GlobalState.getInstance().isSupervisorModeActive());
 
-        this.navigation.getFinish().addClickListener(event -> {
+        this.navigation.getForwardNavigation().addClickListener(event -> {
             if (!this.validateFields()) return;
             Customer newCustomer = this.createNewCustomer();
             GlobalState.getInstance().setCurrentCustomer(newCustomer);
-            Routes.navigateTo(Routes.SELECT_ROOM_START);
+            Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
         });
+
+        this.navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
 
         this.navigation.setFinishButtonActive(true);
 
@@ -85,6 +85,7 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
         this.customerZIP.setValue("");
         this.customerCity.setValue("");
         this.customerDiscount.setValue(0);
+        GlobalState.getInstance().resetGlobalState();
     }
 
     @Override
@@ -102,9 +103,8 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
                 this.customerDiscount.getValue()
         );
 
-        this.customerRepo.save(customer);
         GlobalState.getInstance().setCurrentCustomer(customer);
-        System.out.println(GlobalState.getInstance().getCurrentCustomer());
+        this.customerRepo.save(customer);
 
         return customer;
     }

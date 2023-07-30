@@ -22,7 +22,7 @@ import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
-@Route(Routes.CUSTOMER_UPDATE)
+@Route(Routes.UPDATE_CUSTOMER)
 @SpringComponent
 @UIScope
 public class UpdateCustomer extends Composite<Component> implements BeforeEnterObserver {
@@ -53,7 +53,6 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
     private final VerticalLayout view;
 
     private final CustomerRepo customerRepo;
-    private Customer customer;
 
     public UpdateCustomer(CustomerRepo repo) {
         this.customerRepo = repo;
@@ -70,9 +69,10 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
 
-        Navigation navigation = new Navigation("Zimmerkategorie auswählen", false);
+        Navigation navigation = new Navigation("Kunde suchen", "Zimmerkategorie auswählen");
         navigation.setFinishButtonActive(true);
-        navigation.getFinish().addClickListener(event -> this.navForward());
+        navigation.getForwardNavigation().addClickListener(event -> this.navForward());
+        navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
 
         this.header.getIsSupervisorCheckbox().addValueChangeListener(event -> this.customerDiscount.setEnabled(event.getValue()));
 
@@ -96,7 +96,6 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
         this.zip.setValue(customer.getZip());
         this.city.setValue(customer.getCity());
         this.customerDiscount.setValue(customer.getDiscount());
-        this.customer = customer;
     }
 
     @Override
@@ -136,19 +135,21 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
     private void onUpdateCustomerClick() {
         if (validateFields()) {
-            this.customer.setSurname(this.customerSurname.getValue());
-            this.customer.setPrename(this.customerPrename.getValue());
-            this.customer.setStreet(this.street.getValue());
-            this.customer.setZip(this.zip.getValue());
-            this.customer.setCity(this.city.getValue());
-            this.customerRepo.save(this.customer);
+            GlobalState globalState = GlobalState.getInstance();
+            globalState.getCurrentCustomer().setCity(this.city.getValue());
+            globalState.getCurrentCustomer().setDiscount(this.customerDiscount.getValue());
+            globalState.getCurrentCustomer().setPrename(this.customerPrename.getValue());
+            globalState.getCurrentCustomer().setStreet(this.street.getValue());
+            globalState.getCurrentCustomer().setSurname(this.customerSurname.getValue());
+            globalState.getCurrentCustomer().setZip(this.zip.getValue());
+            this.customerRepo.save(globalState.getCurrentCustomer());
             this.resetView();
         }
     }
 
     private void onDeleteCustomerClick() {
-        this.customerRepo.deleteById(this.customer.getId());
-        Routes.navigateTo(Routes.CUSTOMER_START);
+        this.customerRepo.deleteById(GlobalState.getInstance().getCurrentCustomer().getId());
+        Routes.navigateTo(Routes.SEARCH_CUSTOMER);
     }
 
     private boolean validateFields() {
@@ -161,7 +162,7 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
     private void navForward() {
         if (!validateFields()) return;
-        Routes.navigateTo(Routes.SELECT_ROOM_START);
+        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
     }
 
 }

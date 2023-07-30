@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("serial")
-@Route(Routes.SELECT_ROOM_START)
+@Route(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD)
 @SpringComponent
 @UIScope
 public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnterObserver {
@@ -109,8 +109,8 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
 
         globalState.addPropertyChangeListener(listener);
 
-        this.navigation.getFinish().setEnabled(true);
-        this.navigation.getFinish().addClickListener(event -> {
+        this.navigation.getForwardNavigation().setEnabled(true);
+        this.navigation.getForwardNavigation().addClickListener(event -> {
             if (validUserInput()) {
                 globalState.setSelectedRoomCategory(this.selectedRoomCategory);
                 Booking booking = new Booking(

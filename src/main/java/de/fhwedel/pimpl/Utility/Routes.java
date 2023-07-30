@@ -4,11 +4,11 @@ import com.vaadin.flow.component.UI;
 
 public class Routes {
 
-    public static final String CUSTOMER_START = "/";
-    public static final String CUSTOMER_CREATE = "/create-new-customer";
-    public static final String CUSTOMER_UPDATE = "/update-customer";
+    public static final String SEARCH_CUSTOMER = "/";
+    public static final String CREATE_CUSTOMER = "/create-new-customer";
+    public static final String UPDATE_CUSTOMER = "/update-customer";
 
-    public static final String SELECT_ROOM_START = "/select-room-category-and-booking-period";
+    public static final String SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD = "/select-room-category-and-booking-period";
     public static final String SELECT_ROOM_CHECK_AVAILABLE = "/check-available-rooms";
     public static final String SELECT_ROOM_BOOKING_FAILED = "/booking-failed";
     public static final String SELECT_ROOM_CALCULATE_PRICE = "/calculate-price";
@@ -16,7 +16,10 @@ public class Routes {
 
     // Guests
     public static final String GUEST_ADD_GUEST = "/add-guests";
+    public static final String GUEST_UPDATE = "/update-guest";
 
+    // Checkout
+    public static final String PRE_CHECKOUT_ADDITIONAL_GUESTS = "/pre-checkout-additional-guests";
 
     // Events
     public static final String EVENTS_AFTER_BOOKING_COMPLETED = "/simulate-events-after-booking-completed";

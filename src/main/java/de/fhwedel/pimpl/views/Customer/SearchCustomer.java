@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("serial")
-@Route(Routes.CUSTOMER_START)
+@Route(Routes.SEARCH_CUSTOMER)
 @SpringComponent
 @UIScope
 public class SearchCustomer extends Composite<Component> implements BeforeEnterObserver {
@@ -53,7 +53,7 @@ public class SearchCustomer extends Composite<Component> implements BeforeEnterO
 			if(event.getFirstSelectedItem().isPresent()) {
 				Customer customer = event.getFirstSelectedItem().get();
 				GlobalState.getInstance().setCurrentCustomer(customer);
-				UI.getCurrent().navigate(Routes.CUSTOMER_UPDATE);
+				UI.getCurrent().navigate(Routes.UPDATE_CUSTOMER);
 			}
 		});
 

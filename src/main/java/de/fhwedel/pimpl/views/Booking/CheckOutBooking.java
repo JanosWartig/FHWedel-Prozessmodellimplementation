@@ -14,9 +14,7 @@ import de.fhwedel.pimpl.components.Header;
 @SpringComponent
 @UIScope
 public class CheckOutBooking extends VerticalLayout implements BeforeEnterObserver {
-
     private final Header header = new Header("Buchung auschecken", "Die Buchung des Kunden auschecken..");
-
     private final VerticalLayout view = new VerticalLayout(header);
 
     public CheckOutBooking() {
@@ -26,7 +24,7 @@ public class CheckOutBooking extends VerticalLayout implements BeforeEnterObserv
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if (GlobalState.getInstance().getCurrentBooking() == null) {
-            Routes.navigateTo(Routes.CUSTOMER_START);
+            Routes.navigateTo(Routes.SEARCH_CUSTOMER);
         }
     }
 

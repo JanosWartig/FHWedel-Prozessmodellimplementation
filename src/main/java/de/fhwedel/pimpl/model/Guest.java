@@ -88,6 +88,10 @@ public class Guest {
         this.booking = booking;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "Guest{" +

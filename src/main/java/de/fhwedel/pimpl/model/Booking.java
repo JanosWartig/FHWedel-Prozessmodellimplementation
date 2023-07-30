@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Booking {
@@ -208,6 +209,18 @@ public class Booking {
     public void addGuest(Guest guest) {
         guest.setParentBooking(this);
         this.guests.add(guest);
+    }
+
+    public void updateGuest(Guest guest) {
+        for (Guest g : guests) {
+            if (Objects.equals(g.getId(), guest.getId())) {
+                g.setFirstName(guest.getFirstName());
+                g.setName(guest.getName());
+                g.setBirthDate(guest.getBirthDate());
+                g.setCheckIn(guest.getCheckIn());
+                g.setCheckOut(guest.getCheckOut());
+            }
+        }
     }
 
     public void setGuests(List<Guest> guests) {

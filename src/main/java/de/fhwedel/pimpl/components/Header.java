@@ -12,7 +12,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
-import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
 
@@ -47,7 +46,7 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
 
         this.searchCustomer.addClickListener(event -> {
             GlobalState.getInstance().resetGlobalState();
-            Routes.navigateTo(Routes.CUSTOMER_START);
+            Routes.navigateTo(Routes.SEARCH_CUSTOMER);
         });
         this.searchBooking.addClickListener(event -> {
             GlobalState.getInstance().resetGlobalState();
@@ -80,7 +79,6 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
             }
 
         });
-
 
         add(settings, this.headline, this.secondHeadline);
     }

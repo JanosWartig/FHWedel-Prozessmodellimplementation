@@ -33,7 +33,7 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
     public AvailableRoomsView(RoomRepo roomRepo) {
         this.roomRepo = roomRepo;
 
-        this.navigation.getEdit().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_START));
+        this.navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD));
         this.navigation.getCancel().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
         this.navigation.setFinishButtonActive(false);
 
@@ -50,7 +50,7 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
 
                 this.navigation.setFinishButtonActive(true);
 
-                this.navigation.getFinish().addClickListener(event -> {
+                this.navigation.getForwardNavigation().addClickListener(event -> {
                     GlobalState globalState = GlobalState.getInstance();
                     globalState.getCurrentBooking().setRoom(item.getFirstSelectedItem().get());
                     Routes.navigateTo(Routes.SELECT_ROOM_CALCULATE_PRICE);
@@ -71,9 +71,7 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
 
         List<Room> rooms = roomRepo.findByRoomCategory(roomCategory);
 
-        if (!rooms.isEmpty()) {
-            this.rooms.setItems(DataProvider.ofCollection(rooms));
-        }
+        if (!rooms.isEmpty()) { this.rooms.setItems(DataProvider.ofCollection(rooms)); }
 
     }
 

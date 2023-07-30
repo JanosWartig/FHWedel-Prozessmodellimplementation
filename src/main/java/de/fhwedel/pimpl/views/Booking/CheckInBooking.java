@@ -1,6 +1,5 @@
 package de.fhwedel.pimpl.views.Booking;
 
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -21,41 +20,32 @@ import de.fhwedel.pimpl.views.Guests.CheckInGuests;
 @UIScope
 public class CheckInBooking extends VerticalLayout implements BeforeEnterObserver {
 
-    private final Header header = new Header("Buchung einchecken", "Die Buchung einchecken.");
-    private final Checkbox guestsShowedPersoAndValidatedData = new Checkbox("Alle Gästen haben sich mit Ihrem Personalausweis ausgewiesen und Ihre Daten bestätigt.");
-    private final Navigation navigation = new Navigation("Buchung einchecken", false);
-
-    private final VerticalLayout view = new VerticalLayout(header);
-
     private final BookingRepo repo;
 
     public CheckInBooking(BookingRepo repo) {
         this.repo = repo;
-        this.add(this.view);
-        this.add(new CheckInGuests());
-        this.add(this.guestsShowedPersoAndValidatedData);
-        this.add(this.navigation);
-        this.checkBoxListener();
-        this.navigation.getFinish().addClickListener(e -> {
-            CustomDialog customDialog = new CustomDialog("Buchung eingecheckt", "Die Buchung wurde erfolgreich eingecheckt.");
+        Header header = new Header("Buchung und Gäste einchecken", "Gäste die eingeckeckt werden sollen, müssen korrekte Dokumente vorzeigen können.");
+        VerticalLayout view = new VerticalLayout(header);
+        this.add(view);
+        this.add(new CheckInGuests(repo));
+        Navigation navigation = new Navigation("Buchung einchecken", false);
+        this.add(navigation);
+        navigation.getForwardNavigation().addClickListener(e -> {
+            CustomDialog customDialog = new CustomDialog("Die Buchung wurde erfolgreich eingecheckt.", "Fortfahren.");
             customDialog.open();
             customDialog.getCloseButton().addClickListener(event -> {
                 GlobalState globalState = GlobalState.getInstance();
+                globalState.getCurrentBooking().setBookingDate(globalState.getCurrentDate());
                 globalState.getCurrentBooking().setBookingState(Booking.BookingState.CheckedIn);
                 this.repo.save(globalState.getCurrentBooking());
-                Routes.navigateTo(Routes.BOOKING_CHECK_OUT);
+                customDialog.getDialog().close();
+                Routes.navigateTo(Routes.PRE_CHECKOUT_ADDITIONAL_GUESTS);
             });
         });
+        navigation.getForwardNavigation().setEnabled(true);
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.CUSTOMER_START);
-
-    }
-
-    public void checkBoxListener() {
-        this.guestsShowedPersoAndValidatedData.addValueChangeListener(event -> this.navigation.getFinish().setEnabled(event.getValue()));
-    }
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) { if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.SEARCH_CUSTOMER); }
 
 }

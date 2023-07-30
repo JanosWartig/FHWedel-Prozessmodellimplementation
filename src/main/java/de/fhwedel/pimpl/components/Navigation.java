@@ -6,51 +6,47 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 public class Navigation extends HorizontalLayout {
 
-    private Button edit;
-    private Button finish;
+    private Button back;
+    private Button forwardNavigation;
 
     private Button cancel;
 
     public Navigation(String text, boolean isBackButton) {
         if (isBackButton) {
-            this.edit = new Button(text);
-            this.edit.setIcon(VaadinIcon.CHEVRON_LEFT.create());
-            getStyle().set("margin-top", "65px");
-            add(this.edit);
+            this.back = new Button(text);
+            this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
+            add(this.back);
         } else {
-            this.finish = this.createButton(text, VaadinIcon.CHEVRON_RIGHT);
-            this.finish.setIconAfterText(true);
-            this.finish.setEnabled(false);
-
-            getStyle().set("margin-top", "65px");
-            add(this.finish);
+            this.forwardNavigation = this.createButton(text, VaadinIcon.CHEVRON_RIGHT);
+            this.forwardNavigation.setIconAfterText(true);
+            this.forwardNavigation.setEnabled(false);
+            add(this.forwardNavigation);
         }
 
     }
 
-    public Navigation(String nextText, String backText) {
-        this.edit = new Button(backText);
-        this.edit.setIcon(VaadinIcon.CHEVRON_LEFT.create());
+    public Navigation(String backText, String nextText) {
+        this.back = new Button(backText);
+        this.back.setIcon(VaadinIcon.CHEVRON_LEFT.create());
 
-        this.finish = new Button(nextText);
-        this.finish.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        this.finish.setIconAfterText(true);
-        this.finish.setEnabled(false);
+        this.forwardNavigation = new Button(nextText);
+        this.forwardNavigation.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
+        this.forwardNavigation.setIconAfterText(true);
+        this.forwardNavigation.setEnabled(false);
 
-        getStyle().set("margin-top", "65px");
-        add(this.edit, this.finish);
+        add(this.back, this.forwardNavigation);
     }
 
-    public Navigation(String edit, String finish, String cancel) {
-        this.edit = this.createButton(edit, VaadinIcon.CHEVRON_LEFT);
-        this.finish = this.createButton(finish, VaadinIcon.CHECK);
-        this.cancel = this.createButton(cancel, VaadinIcon.ARROWS_CROSS);
-        this.cancel.setIconAfterText(true);
-        this.finish.getStyle().set("color", "green");
-        this.cancel.getStyle().set("color", "red");
+    public Navigation(String back, String forward, String cancel) {
+        this.back = this.createButton(back, VaadinIcon.CHEVRON_LEFT);
+        this.forwardNavigation = this.createButton(forward, VaadinIcon.CHEVRON_RIGHT);
+        this.cancel = new Button(cancel);
 
-        this.getStyle().set("margin-top", "40px");
-        add(this.edit, this.finish, this.cancel);
+        this.forwardNavigation.setIconAfterText(true);
+        this.cancel.setIconAfterText(true);
+
+        this.cancel.getStyle().set("color", "red");
+        add(this.back, this.forwardNavigation, this.cancel);
     }
 
     private Button createButton(String text, VaadinIcon icon) {
@@ -60,21 +56,21 @@ public class Navigation extends HorizontalLayout {
     }
 
 
-    public Button getEdit() {
-        return this.edit;
+    public Button getBack() {
+        return this.back;
     }
 
-    public Button getFinish() {
-        return this.finish;
+    public Button getForwardNavigation() {
+        return this.forwardNavigation;
     }
 
     public void setFinishButtonActive(boolean isActive) {
         if (isActive) {
-            this.finish.setEnabled(true);
-            this.finish.getStyle().set("opacity", "1");
+            this.forwardNavigation.setEnabled(true);
+            this.forwardNavigation.getStyle().set("opacity", "1");
         } else {
-            this.finish.setEnabled(false);
-            this.finish.getStyle().set("opacity", "0.5");
+            this.forwardNavigation.setEnabled(false);
+            this.forwardNavigation.getStyle().set("opacity", "0.5");
         }
     }
 

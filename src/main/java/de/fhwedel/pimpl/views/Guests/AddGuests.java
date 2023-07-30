@@ -43,7 +43,7 @@ public class AddGuests extends VerticalLayout implements BeforeEnterObserver {
         this.repo = repo;
         this.configureLayout();
 
-        this.navigation.getFinish().addClickListener(event -> {
+        this.navigation.getForwardNavigation().addClickListener(event -> {
             CustomDialog customDialog = new CustomDialog("Buchungsbestätigung wurde versendet.",  "Zur Kenntnis genommen");
             customDialog.open();
             customDialog.getCloseButton().addClickListener(closeEvent -> {
@@ -60,7 +60,7 @@ public class AddGuests extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.CUSTOMER_START);
+        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.SEARCH_CUSTOMER);
     }
 
     private void addGuestClickEvent() {
@@ -91,7 +91,7 @@ public class AddGuests extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void configureLayout() {
-        this.navigation.getFinish().setEnabled(true);
+        this.navigation.getForwardNavigation().setEnabled(true);
         this.guestForm.addFormItem(guestName, "Gast Name");
         this.guestForm.addFormItem(guestFirstName, "Gast Vorname");
         this.guestForm.addFormItem(guestBirthDate, "Geburtsdatum");

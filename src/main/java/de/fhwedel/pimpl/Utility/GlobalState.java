@@ -2,6 +2,7 @@ package de.fhwedel.pimpl.Utility;
 
 import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.Customer;
+import de.fhwedel.pimpl.model.Guest;
 import de.fhwedel.pimpl.model.RoomCategory;
 
 import java.beans.PropertyChangeListener;
@@ -16,6 +17,8 @@ public class GlobalState {
     private Customer currentCustomer = null;
     private Booking currentBooking = null;
     private RoomCategory selectedRoomCategory = null;
+
+    private Guest currentGuest = null;
 
     public static String SUPERVISOR_PROPERTY_NAME = "isSupervisorModeActive";
     public static String CURRENT_DATE_PROPERTY_NAME = "currentDate";
@@ -35,6 +38,7 @@ public class GlobalState {
         currentCustomer = null;
         currentBooking = null;
         selectedRoomCategory = null;
+        currentGuest = null;
         isSupervisorModeActive = false;
         currentDate = LocalDate.now();
     }
@@ -61,6 +65,14 @@ public class GlobalState {
 
     public void setCurrentBooking(Booking currentBooking) {
         this.currentBooking = currentBooking;
+    }
+
+    public void setCurrentGuest(Guest currentGuest) {
+    	this.currentGuest = currentGuest;
+    }
+
+    public Guest getCurrentGuest() {
+    	return this.currentGuest;
     }
 
     public void setSupervisorModeActive(boolean supervisorModeActive) {

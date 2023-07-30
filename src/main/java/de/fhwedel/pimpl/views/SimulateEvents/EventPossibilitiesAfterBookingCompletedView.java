@@ -7,7 +7,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Header;
@@ -43,7 +42,7 @@ public class EventPossibilitiesAfterBookingCompletedView extends VerticalLayout 
     public void beforeEnter(BeforeEnterEvent event) {
         GlobalState globalState = GlobalState.getInstance();
         if (globalState.getCurrentBooking() == null) {
-            Routes.navigateTo(Routes.CUSTOMER_START);
+            Routes.navigateTo(Routes.SEARCH_CUSTOMER);
         }
     }
 
