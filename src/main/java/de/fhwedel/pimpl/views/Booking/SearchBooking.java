@@ -1,7 +1,5 @@
 package de.fhwedel.pimpl.views.Booking;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,8 +10,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
-import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.model.Booking;
@@ -28,7 +24,7 @@ import java.util.Optional;
 @Route(Routes.BOOKINGS_SEARCH)
 @SpringComponent
 @UIScope
-public class SearchBookingsView extends VerticalLayout implements BeforeEnterObserver {
+public class SearchBooking extends VerticalLayout implements BeforeEnterObserver {
 
     private TextField bookingQuery = new TextField();
     private Button bookingSearch = new Button("Suchen", event -> search( Optional.of(bookingQuery.getValue()) ));
@@ -40,7 +36,7 @@ public class SearchBookingsView extends VerticalLayout implements BeforeEnterObs
     private VerticalLayout view;
     private BookingRepo bookingRepo;
 
-    public SearchBookingsView(BookingRepo bookingRepo) {
+    public SearchBooking(BookingRepo bookingRepo) {
         this.bookingRepo = bookingRepo;
         this.initBookingsGrid();
 

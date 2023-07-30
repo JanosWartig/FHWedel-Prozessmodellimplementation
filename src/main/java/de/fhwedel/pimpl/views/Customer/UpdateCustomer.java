@@ -1,4 +1,4 @@
-package de.fhwedel.pimpl.views.SelectCustomer;
+package de.fhwedel.pimpl.views.Customer;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
@@ -14,8 +14,8 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
+import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.components.Header;
@@ -25,9 +25,9 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 @Route(Routes.CUSTOMER_UPDATE)
 @SpringComponent
 @UIScope
-public class UpdateCustomerView extends Composite<Component> implements BeforeEnterObserver {
+public class UpdateCustomer extends Composite<Component> implements BeforeEnterObserver {
 
-    private final String headlineCheckCustomer = "Deine Daten überprüfen";
+    private final String headlineCheckCustomer = "Kunden-Daten überprüfen";
     private final String subheadlineCheckCustomer = "Sind alle Daten korrekt?";
 
     @PropertyId("surname")
@@ -55,7 +55,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
     private final CustomerRepo customerRepo;
     private Customer customer;
 
-    public UpdateCustomerView(CustomerRepo repo) {
+    public UpdateCustomer(CustomerRepo repo) {
         this.customerRepo = repo;
 
         FormLayout customerForm = new FormLayout();
@@ -70,11 +70,11 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
 
-        Navigation navigation = new Navigation(
-                "Zimmerkategorie auswählen", false
-        );
+        Navigation navigation = new Navigation("Zimmerkategorie auswählen", false);
         navigation.setFinishButtonActive(true);
-        navigation.getFinish().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_START));
+        navigation.getFinish().addClickListener(event -> this.navForward());
+
+        this.header.getIsSupervisorCheckbox().addValueChangeListener(event -> this.customerDiscount.setEnabled(event.getValue()));
 
         VerticalLayout customersForm = new VerticalLayout(
                 header,
@@ -83,6 +83,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
                 customerEdit,
                 navigation);
         view = new VerticalLayout(customersForm);
+        this.view.setWidth("850px");
     }
 
     @Override
@@ -94,6 +95,7 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.street.setValue(customer.getStreet());
         this.zip.setValue(customer.getZip());
         this.city.setValue(customer.getCity());
+        this.customerDiscount.setValue(customer.getDiscount());
         this.customer = customer;
     }
 
@@ -129,22 +131,37 @@ public class UpdateCustomerView extends Composite<Component> implements BeforeEn
         this.street.setEnabled(true);
         this.zip.setEnabled(true);
         this.city.setEnabled(true);
-        this.customerDiscount.setEnabled(true);
+        this.customerDiscount.setEnabled(GlobalState.getInstance().isSupervisorModeActive());
     }
 
     private void onUpdateCustomerClick() {
-        this.customer.setSurname(this.customerSurname.getValue());
-        this.customer.setPrename(this.customerPrename.getValue());
-        this.customer.setStreet(this.street.getValue());
-        this.customer.setZip(this.zip.getValue());
-        this.customer.setCity(this.city.getValue());
-
-        this.customerRepo.save(this.customer);
+        if (validateFields()) {
+            this.customer.setSurname(this.customerSurname.getValue());
+            this.customer.setPrename(this.customerPrename.getValue());
+            this.customer.setStreet(this.street.getValue());
+            this.customer.setZip(this.zip.getValue());
+            this.customer.setCity(this.city.getValue());
+            this.customerRepo.save(this.customer);
+            this.resetView();
+        }
     }
 
     private void onDeleteCustomerClick() {
         this.customerRepo.deleteById(this.customer.getId());
         Routes.navigateTo(Routes.CUSTOMER_START);
+    }
+
+    private boolean validateFields() {
+        if (this.customerDiscount.getValue() < 0 || this.customerDiscount.getValue() > 100) {
+            Notifications.showErrorNotification("Rabatt muss zwischen 0 und 100 liegen");
+            return false;
+        }
+        return true;
+    }
+
+    private void navForward() {
+        if (!validateFields()) return;
+        Routes.navigateTo(Routes.SELECT_ROOM_START);
     }
 
 }

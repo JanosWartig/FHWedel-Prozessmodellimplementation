@@ -1,6 +1,5 @@
 package de.fhwedel.pimpl.views.Guests;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -9,15 +8,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.model.Booking;
-import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.model.Guest;
 
 import java.util.List;
 import java.util.Optional;
 
-public class GuestCheckInView extends VerticalLayout {
+public class CheckInGuests extends VerticalLayout {
 
     private Label headline = new Label("Gast einchecken");
     private Label subheadLine = new Label("Überprüfe ob die Daten aller Gäste korrekt sind.");
@@ -28,7 +25,7 @@ public class GuestCheckInView extends VerticalLayout {
     private Grid<Guest> guests = new Grid<>();
     private final VerticalLayout view = new VerticalLayout(guestQuery, guestSearch, guests);
 
-    public GuestCheckInView() {
+    public CheckInGuests() {
         this.view.setPadding(false);
         this.configureGuestTable();
         this.headline.getStyle().set("font-weight", "bold").set("font-size", Constants.HEADLINE_1).set("margin-top", "30px");
@@ -46,6 +43,7 @@ public class GuestCheckInView extends VerticalLayout {
         this.guests.addColumn(Guest::getCheckOut).setHeader("Check-Out").setSortable(true);
         this.guests.setSelectionMode(Grid.SelectionMode.SINGLE);
         this.guests.setHeight("300px");
+        this.guests.setWidth("700px");
     }
 
     public void searchGuests(Optional<String> query) {

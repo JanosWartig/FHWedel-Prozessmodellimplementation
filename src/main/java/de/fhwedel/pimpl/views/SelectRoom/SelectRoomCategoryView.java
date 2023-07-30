@@ -4,8 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -15,7 +13,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.Utility.Routes;
@@ -46,9 +43,7 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
     private final Button roomCategorySearch = new Button("Suchen", event -> search(Optional.of(roomCategoryQuery.getValue())));
     private final Grid<RoomCategory> roomCategories = new Grid<>();
 
-
-    private final Header header = new Header(
-            "Zimmerkategorie und Buchungszeitraum auswählen", "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.");
+    private final Header header = new Header("Zimmerkategorie und Buchungszeitraum auswählen", "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.");
 
     private final Navigation navigation = new Navigation("Verfügbare Zimmer ermitteln", false);
 
@@ -86,7 +81,8 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
         roomCategories.addColumn(RoomCategory::getPrice).setHeader("Preis").setSortable(true);
         roomCategories.addColumn(RoomCategory::getMinPrice).setHeader("Min Preis").setSortable(true);
         roomCategories.setSelectionMode(Grid.SelectionMode.SINGLE);
-        roomCategories.setHeight("300px");
+        roomCategories.setHeight("200px");
+        roomCategories.setWidth("700px");
         roomCategories.addSelectionListener(event -> {
             if (event.getFirstSelectedItem().isPresent()) {
                 selectedRoomCategory = event.getFirstSelectedItem().get();

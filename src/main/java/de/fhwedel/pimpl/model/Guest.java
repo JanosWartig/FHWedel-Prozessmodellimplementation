@@ -2,6 +2,7 @@ package de.fhwedel.pimpl.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
@@ -23,10 +24,10 @@ public class Guest {
     @NotNull(message = "Pflichtangabe")
     private LocalDate birthDate;
 
-    @Nullable
+    @jakarta.annotation.Nullable
     private LocalDate checkIn;
 
-    @Nullable
+    @jakarta.annotation.Nullable
     private LocalDate checkOut;
 
     @ManyToOne
@@ -35,17 +36,10 @@ public class Guest {
 
     public Guest() { }
 
-    public Guest(String name, String firstName, LocalDate birthDate, @Nullable LocalDate checkIn, @Nullable LocalDate checkOut) {
-        if (checkIn != null && checkOut != null) {
-            if (checkIn.isAfter(checkOut)) {
-                throw new IllegalArgumentException("Check-In-Datum muss kleiner als Check-Out-Datum sein.");
-            }
-        }
+    public Guest(String name, String firstName, LocalDate birthDate) {
         this.name = name;
         this.firstName = firstName;
         this.birthDate = birthDate;
-        this.checkIn = checkIn;
-        this.checkOut = checkOut;
     }
 
     public String getName() {

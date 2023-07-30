@@ -21,7 +21,7 @@ import de.fhwedel.pimpl.repos.BookingRepo;
 @Route(Routes.GUEST_ADD_GUEST)
 @SpringComponent
 @UIScope
-public class AddGuestView extends VerticalLayout implements BeforeEnterObserver {
+public class AddGuests extends VerticalLayout implements BeforeEnterObserver {
 
     private final Navigation navigation = new Navigation("Alle Gäste erfasst und Buchungsbestätigung versenden", false);
 
@@ -29,19 +29,17 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
 
     private final Button addGuest = new Button("Gast hinzufügen");
 
-    private TextField guestName = new TextField();
-    private TextField guestFirstName = new TextField();
-    private DatePicker guestBirthDate = new DatePicker();
-    private DatePicker guestCheckIn = new DatePicker();
-    private DatePicker guestCheckOut = new DatePicker();
+    private final TextField guestName = new TextField();
+    private final TextField guestFirstName = new TextField();
+    private final DatePicker guestBirthDate = new DatePicker();
 
-    private FormLayout guestForm = new FormLayout();
+    private final FormLayout guestForm = new FormLayout();
 
     private final VerticalLayout view = new VerticalLayout(header, guestForm, addGuest, navigation);
 
     private final BookingRepo repo;
 
-    public AddGuestView(BookingRepo repo) {
+    public AddGuests(BookingRepo repo) {
         this.repo = repo;
         this.configureLayout();
 
@@ -54,6 +52,7 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
             });
         });
 
+        this.view.setWidth("900px");
         this.add(view);
 
         this.addGuestClickEvent();
@@ -61,9 +60,7 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) {
-            Routes.navigateTo(Routes.CUSTOMER_START);
-        }
+        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.CUSTOMER_START);
     }
 
     private void addGuestClickEvent() {
@@ -74,12 +71,7 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
                 return;
             }
 
-            Guest newGuest = new Guest(
-                    this.guestName.getValue(),
-                    this.guestFirstName.getValue(),
-                    this.guestBirthDate.getValue(),
-                    this.guestCheckIn.getValue(),
-                    this.guestCheckOut.getValue());
+            Guest newGuest = new Guest(this.guestName.getValue(), this.guestFirstName.getValue(), this.guestBirthDate.getValue());
 
             GlobalState globalState = GlobalState.getInstance();
 
@@ -103,8 +95,6 @@ public class AddGuestView extends VerticalLayout implements BeforeEnterObserver 
         this.guestForm.addFormItem(guestName, "Gast Name");
         this.guestForm.addFormItem(guestFirstName, "Gast Vorname");
         this.guestForm.addFormItem(guestBirthDate, "Geburtsdatum");
-        this.guestForm.addFormItem(guestCheckIn, "Check-In");
-        this.guestForm.addFormItem(guestCheckOut, "Check-Out");
         this.addGuest.setIcon(VaadinIcon.PLUS.create());
     }
 

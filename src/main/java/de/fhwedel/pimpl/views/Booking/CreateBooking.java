@@ -1,14 +1,14 @@
-package de.fhwedel.pimpl.views.SelectRoom;
+package de.fhwedel.pimpl.views.Booking;
 
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Header;
@@ -20,32 +20,32 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 
 import java.text.DecimalFormat;
-import java.util.Optional;
 
 @SuppressWarnings("serial")
 @Route(Routes.SELECT_ROOM_CALCULATE_PRICE)
 @SpringComponent
 @UIScope
-public class CalculatePriceView extends VerticalLayout implements BeforeEnterObserver {
+public class CreateBooking extends VerticalLayout implements BeforeEnterObserver {
 
-    Header header = new Header("Preis bestimmen", "Hier wird der Preis für den Kunden berechnet.");
+    Header header = new Header("Buchung anlegen", "Hier wird die Buchung angelegt und der Preis bestimmt.");
 
     Label priceDescription = new Label("Der Preis für das Zimmer beträgt: ");
     Label price = new Label();
 
     HorizontalLayout priceBox = new HorizontalLayout(priceDescription, price);
+    TextArea comment = new TextArea("Kommentar");
 
     Navigation navigation = new Navigation("Zimmerkategorie bearbeiten", "Buchung anlegen", "Abbrechen");
 
     private int calculatedPrice;
 
-    private VerticalLayout view = new VerticalLayout(header, priceBox, navigation);
+    private VerticalLayout view = new VerticalLayout(header, priceBox, comment, navigation);
 
     private CustomerRepo customerRepo;
     private RoomCategoryRepo roomCategoryRepo;
     private BookingRepo bookingRepo;
 
-    public CalculatePriceView(CustomerRepo customerRepo, RoomCategoryRepo roomCategoryRepo, BookingRepo bookingRepo) {
+    public CreateBooking(CustomerRepo customerRepo, RoomCategoryRepo roomCategoryRepo, BookingRepo bookingRepo) {
         this.customerRepo = customerRepo;
         this.roomCategoryRepo = roomCategoryRepo;
         this.bookingRepo = bookingRepo;
@@ -71,6 +71,9 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
         RoomCategory roomCategory = GlobalState.getInstance().getSelectedRoomCategory();
         Customer customer = GlobalState.getInstance().getCurrentCustomer();
 
+        System.out.println(customer);
+        System.out.println(customer.getDiscount());
+
         this.calculatedPrice = Math.max(roomCategory.getPrice() * (1 - (customer.getDiscount() / 100)), roomCategory.getMinPrice());
 
         DecimalFormat decimalFormat = new DecimalFormat("#,##0.00 €");
@@ -81,12 +84,11 @@ public class CalculatePriceView extends VerticalLayout implements BeforeEnterObs
     }
 
     private void createBooking() {
-
         GlobalState globalState = GlobalState.getInstance();
         globalState.getCurrentBooking().setRoomPrice(this.calculatedPrice);
+        globalState.getCurrentBooking().setComment(this.comment.getValue());
         this.bookingRepo.save(globalState.getCurrentBooking());
         Routes.navigateTo(Routes.GUEST_ADD_GUEST);
-
     }
 
 

@@ -8,7 +8,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
 import de.fhwedel.pimpl.components.Navigation;
@@ -25,9 +24,7 @@ import java.util.List;
 @UIScope
 public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final Navigation navigation = new Navigation(
-            "Zimmerkategorie bearbeiten", "Preis bestimmen", "Abbruch"
-    );
+    private final Navigation navigation = new Navigation("Zimmerkategorie bearbeiten", "Preis bestimmen", "Abbruch");
 
     private final Grid<Room> rooms = new Grid<>();
 
@@ -46,7 +43,8 @@ public class AvailableRoomsView extends VerticalLayout implements BeforeEnterObs
         rooms.addColumn(room -> room.getRoomCategory().getPrice()).setHeader("Preis").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getMinPrice()).setHeader("Min Preis").setSortable(true);
         rooms.setSelectionMode(Grid.SelectionMode.SINGLE);
-        rooms.setHeight("300px");
+        rooms.setHeight("200px");
+        rooms.setWidth("700px");
         rooms.addSelectionListener(item -> {
             if (item.getFirstSelectedItem().isPresent()) {
 

@@ -30,7 +30,7 @@ public class RoomCategory {
     private Integer price;
 
     @NotNull(message = "Pflichtangabe")
-    @Min(value = 0, message = "Mindestens 0Euro pro Nacht.")
+    @Min(value = 0, message = "Mindestens 0 Euro pro Nacht.")
     private Integer minPrice;
 
     public RoomCategory() {}

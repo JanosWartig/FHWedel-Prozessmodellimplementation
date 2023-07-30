@@ -12,6 +12,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Routes;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
 
@@ -96,6 +97,10 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
 
     public void setSecondHeadline(String secondHeadline) {
         this.secondHeadline.setText(secondHeadline);
+    }
+
+    public Checkbox getIsSupervisorCheckbox() {
+        return this.isSupervisor;
     }
 
     public DatePicker getDatePicker() {

@@ -13,13 +13,13 @@ import de.fhwedel.pimpl.components.Header;
 @Route(Routes.BOOKING_CHECK_OUT)
 @SpringComponent
 @UIScope
-public class BookingCheckOutView extends VerticalLayout implements BeforeEnterObserver {
+public class CheckOutBooking extends VerticalLayout implements BeforeEnterObserver {
 
     private final Header header = new Header("Buchung auschecken", "Die Buchung des Kunden auschecken..");
 
     private final VerticalLayout view = new VerticalLayout(header);
 
-    public BookingCheckOutView() {
+    public CheckOutBooking() {
         this.add(this.view);
     }
 

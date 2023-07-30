@@ -12,12 +12,10 @@ import de.fhwedel.pimpl.components.Header;
 @UIScope
 public class BookingCanceledView extends VerticalLayout {
 
-    private final Header header = new Header("Buchung storniert", "Die Buchung wurde erfolgreich storniert.");
-
-    private final VerticalLayout view = new VerticalLayout(header);
-
     public BookingCanceledView() {
-        this.add(this.view);
+        Header header = new Header("Buchung storniert", "Die Buchung wurde erfolgreich storniert.");
+        VerticalLayout view = new VerticalLayout(header);
+        this.add(view);
     }
 
 }

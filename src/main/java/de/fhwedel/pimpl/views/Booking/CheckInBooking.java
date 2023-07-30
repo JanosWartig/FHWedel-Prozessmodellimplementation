@@ -14,25 +14,25 @@ import de.fhwedel.pimpl.components.Header;
 import de.fhwedel.pimpl.components.Navigation;
 import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.repos.BookingRepo;
-import de.fhwedel.pimpl.views.Guests.GuestCheckInView;
+import de.fhwedel.pimpl.views.Guests.CheckInGuests;
 
 @Route(Routes.BOOKING_CHECK_IN)
 @SpringComponent
 @UIScope
-public class BookingCheckInView extends VerticalLayout implements BeforeEnterObserver {
+public class CheckInBooking extends VerticalLayout implements BeforeEnterObserver {
 
-    private final Header header = new Header("Buchung einchecken", "Die Buchung des Kunden einchecken.");
-    private final Checkbox guestsShowedPersoAndValidatedData = new Checkbox("Gäste haben Perso gezeigt und Daten überprüft");
-    private final Navigation navigation = new Navigation("Alle Daten korrekt und Buchung einchecken", false);
+    private final Header header = new Header("Buchung einchecken", "Die Buchung einchecken.");
+    private final Checkbox guestsShowedPersoAndValidatedData = new Checkbox("Alle Gästen haben sich mit Ihrem Personalausweis ausgewiesen und Ihre Daten bestätigt.");
+    private final Navigation navigation = new Navigation("Buchung einchecken", false);
 
     private final VerticalLayout view = new VerticalLayout(header);
 
     private final BookingRepo repo;
 
-    public BookingCheckInView(BookingRepo repo) {
+    public CheckInBooking(BookingRepo repo) {
         this.repo = repo;
         this.add(this.view);
-        this.add(new GuestCheckInView());
+        this.add(new CheckInGuests());
         this.add(this.guestsShowedPersoAndValidatedData);
         this.add(this.navigation);
         this.checkBoxListener();
@@ -50,15 +50,12 @@ public class BookingCheckInView extends VerticalLayout implements BeforeEnterObs
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) {
-            Routes.navigateTo(Routes.CUSTOMER_START);
-        }
+        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.CUSTOMER_START);
+
     }
 
     public void checkBoxListener() {
-        this.guestsShowedPersoAndValidatedData.addValueChangeListener(event -> {
-            this.navigation.getFinish().setEnabled(event.getValue());
-        });
+        this.guestsShowedPersoAndValidatedData.addValueChangeListener(event -> this.navigation.getFinish().setEnabled(event.getValue()));
     }
 
 }
