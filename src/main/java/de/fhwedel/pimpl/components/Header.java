@@ -9,9 +9,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import de.fhwedel.pimpl.Utility.Constants;
 import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Routes;
+import de.fhwedel.pimpl.components.navigation.Routes;
 
 import java.time.LocalDate;
 
@@ -37,10 +36,7 @@ public class Header extends VerticalLayout implements BeforeEnterObserver {
         this.headline = new Label(headline);
         this.secondHeadline = new Label(secondHeadline);
 
-        this.headline.getStyle().set("font-weight", "bold").set("font-size", Constants.HEADLINE_1).set("margin-top", "30px");
-
-        this.setPadding(false);
-        this.setSpacing(false);
+        this.headline.getStyle().set("font-weight", "bold").set("font-size", "24px").set("margin-top", "30px");
 
         this.getStyle().set("margin-bottom", "12px");
 

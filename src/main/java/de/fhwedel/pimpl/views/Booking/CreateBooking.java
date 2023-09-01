@@ -1,8 +1,9 @@
 package de.fhwedel.pimpl.views.Booking;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -10,24 +11,21 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Header;
-import de.fhwedel.pimpl.components.Navigation;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.BackButton;
+import de.fhwedel.pimpl.components.navigation.ErrorButton;
+import de.fhwedel.pimpl.components.navigation.ForwardButton;
+import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.BookingRepo;
-import de.fhwedel.pimpl.repos.CustomerRepo;
-import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 
 import java.text.DecimalFormat;
 
-@SuppressWarnings("serial")
 @Route(Routes.SELECT_ROOM_CALCULATE_PRICE)
 @SpringComponent
 @UIScope
-public class CreateBooking extends VerticalLayout implements BeforeEnterObserver {
-
-    Header header = new Header("Buchung anlegen", "Hier wird die Buchung angelegt und der Preis bestimmt.");
+public class CreateBooking extends Composite<Component> implements BeforeEnterObserver {
 
     Label priceDescription = new Label("Der Preis für das Zimmer beträgt: ");
     Label price = new Label();
@@ -35,27 +33,24 @@ public class CreateBooking extends VerticalLayout implements BeforeEnterObserver
     HorizontalLayout priceBox = new HorizontalLayout(priceDescription, price);
     TextArea comment = new TextArea("Kommentar");
 
-    Navigation navigation = new Navigation("Zimmerkategorie bearbeiten", "Buchung anlegen", "Abbrechen");
+    private final BackButton backButton = new BackButton("Zimmerkategorie bearbeiten", event -> Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD));
+
+    private final ErrorButton errorButton = new ErrorButton("Abbrechen", event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
+
+    private final ForwardButton forwardButton = new ForwardButton("Buchung anlegen", event -> this.createBooking());
+
+    HorizontalLayout navigationLayout = new HorizontalLayout(backButton, errorButton, forwardButton);
+
+    private final PageLayout pageLayout = new PageLayout("Buchung anlegen", "Hier wird die Buchung angelegt und der Preis bestimmt.",
+            priceBox, comment, navigationLayout);
 
     private int calculatedPrice;
-
-    private VerticalLayout view = new VerticalLayout(header, priceBox, comment, navigation);
-
     private final BookingRepo bookingRepo;
 
     public CreateBooking(BookingRepo bookingRepo) {
         this.bookingRepo = bookingRepo;
-
-        this.priceBox.setPadding(false);
-        this.priceDescription.getStyle().set("font-size", "16px");
-        this.price.getStyle().set("font-size", "30px");
-        this.price.getStyle().set("font-weight", "bold");
-
-        this.navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD));
-        this.navigation.getCancel().addClickListener(event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
-        this.navigation.getForwardNavigation().addClickListener(event -> this.createBooking());
-
-        this.add(view);
+        this.forwardButton.setEnabled(true);
+        this.initPrice();
     }
 
     @Override
@@ -71,6 +66,18 @@ public class CreateBooking extends VerticalLayout implements BeforeEnterObserver
         this.price.setText(formattedPrice);
     }
 
+    @Override
+    protected Component initContent() {
+        return this.pageLayout;
+    }
+
+    private void initPrice() {
+        this.priceBox.setPadding(false);
+        this.priceDescription.getStyle().set("font-size", "16px");
+        this.price.getStyle().set("font-size", "30px");
+        this.price.getStyle().set("font-weight", "bold");
+    }
+
     private void createBooking() {
         GlobalState globalState = GlobalState.getInstance();
         globalState.getCurrentBooking().setRoomPrice(this.calculatedPrice);
@@ -78,6 +85,5 @@ public class CreateBooking extends VerticalLayout implements BeforeEnterObserver
         this.bookingRepo.save(globalState.getCurrentBooking());
         Routes.navigateTo(Routes.GUEST_ADD_GUEST);
     }
-
 
 }

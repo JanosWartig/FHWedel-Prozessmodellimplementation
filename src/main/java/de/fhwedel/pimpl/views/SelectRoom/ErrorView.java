@@ -1,24 +1,24 @@
 package de.fhwedel.pimpl.views.SelectRoom;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import de.fhwedel.pimpl.Utility.Constants;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.Routes;
 
-@SuppressWarnings("serial")
 @Route(Routes.SELECT_ROOM_BOOKING_FAILED)
 @SpringComponent
 @UIScope
-public class ErrorView extends VerticalLayout {
+public class ErrorView extends Composite<Component> {
 
-    Header header = new Header("Reservierung gescheitert", "Entweder ist kein Zimmer zur Verfügung oder die Preisbestimmung ist gescheitert.");
+    private final PageLayout pageLayout = new PageLayout("Reservierung gescheitert", "Entweder ist kein Zimmer zur Verfügung oder die Preisbestimmung ist gescheitert.");
 
-    public ErrorView() {
-        VerticalLayout view = new VerticalLayout(header);
-        this.add(view);
+    public ErrorView() { }
+
+    @Override
+    protected Component initContent() {
+        return this.pageLayout;
     }
-
 }

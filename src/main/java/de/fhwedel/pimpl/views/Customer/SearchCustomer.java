@@ -6,8 +6,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -16,8 +14,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.components.navigation.Routes;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -25,66 +24,57 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("serial")
 @Route(Routes.SEARCH_CUSTOMER)
 @SpringComponent
 @UIScope
 public class SearchCustomer extends Composite<Component> implements BeforeEnterObserver {
 
-	private TextField customersQuery = new TextField();
-	private Button customersSearch = new Button("Suchen", event -> search( Optional.of(customersQuery.getValue() ) ));
-	private Grid<Customer> customers = new Grid<>();
-	private Button navigateToCreateNewCustomer = new Button("Neuen Kunden anlegen", event -> createNewCustomer());
-	private VerticalLayout customersForm = new VerticalLayout(
-			new Header("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens."),
-			customersQuery, customersSearch, customers, navigateToCreateNewCustomer);
-	private VerticalLayout view;
-	private CustomerRepo customerRepo;
+    private final TextField customersQuery = new TextField();
+    private final Grid<Customer> customers = new Grid<>();
+    private final ForwardButton forwardButton = new ForwardButton("Neuen Kunden erstellen", event -> {
+        UI.getCurrent().navigate(Routes.CREATE_CUSTOMER);
+        event.setEnabled(false);
+    });
 
-	public SearchCustomer(CustomerRepo customerRepo) {
-		this.customerRepo = customerRepo;
+    Button customersSearch = new Button("Suchen", event -> search(Optional.of(customersQuery.getValue())));
+    private final CustomerRepo customerRepo;
+    private final PageLayout pageLayout = new PageLayout("Kunde suchen", "Suche den Kunden durch Eingabe des Nachnamens.",
+            customersQuery, customersSearch, customers, forwardButton);
 
-		customers.addColumn(Customer::getCustomerNumber).setHeader("Kundennummer").setSortable(true);
-		customers.addColumn(Customer::getSurname).setHeader("Name").setSortable(true);
-		customers.setSelectionMode(SelectionMode.SINGLE);
-		customers.setHeight("200px");
-		customers.setWidth("700px");
-		customers.addSelectionListener( event -> {
-			if(event.getFirstSelectedItem().isPresent()) {
-				Customer customer = event.getFirstSelectedItem().get();
-				GlobalState.getInstance().setCurrentCustomer(customer);
-				UI.getCurrent().navigate(Routes.UPDATE_CUSTOMER);
-			}
-		});
+    public SearchCustomer(CustomerRepo customerRepo) {
+        this.customerRepo = customerRepo;
+        this.initCustomersTable();
+    }
 
-		this.navigateToCreateNewCustomer.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-		this.navigateToCreateNewCustomer.setIconAfterText(true);
-		this.navigateToCreateNewCustomer.setEnabled(false);
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        this.customers.setItems();
+    }
 
-		view = new VerticalLayout(customersForm);
-	}
+    @Override
+    protected Component initContent() {
+        return this.pageLayout;
+    }
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		this.customers.setItems();
-	}
+    private void initCustomersTable() {
+        customers.addColumn(Customer::getCustomerNumber).setHeader("Kundennummer").setSortable(true);
+        customers.addColumn(Customer::getSurname).setHeader("Name").setSortable(true);
+        customers.setSelectionMode(SelectionMode.SINGLE);
+        customers.setHeight("200px");
+        customers.setWidth("700px");
+        customers.addSelectionListener(event -> {
+            if (event.getFirstSelectedItem().isPresent()) {
+                Customer customer = event.getFirstSelectedItem().get();
+                GlobalState.getInstance().setCurrentCustomer(customer);
+                UI.getCurrent().navigate(Routes.UPDATE_CUSTOMER);
+            }
+        });
+    }
 
-	@Override
-	protected Component initContent() {
-		return view;
-	}
-
-	private void search(Optional<String> query) {
-		List<Customer> items = query.map(str -> customerRepo.findBySurnameContainingIgnoreCase(str)).orElse(Collections.emptyList());
-		customers.setItems(DataProvider.ofCollection(items));
-		this.navigateToCreateNewCustomer.setEnabled(items.isEmpty());
-	}
-
-	private void createNewCustomer() {
-		UI.getCurrent().navigate("/create-new-customer");
-		this.navigateToCreateNewCustomer.setEnabled(false);
-	}
-
-
+    private void search(Optional<String> query) {
+        List<Customer> items = query.map(customerRepo::findBySurnameContainingIgnoreCase).orElse(Collections.emptyList());
+        customers.setItems(DataProvider.ofCollection(items));
+        this.forwardButton.setEnabled(items.isEmpty());
+    }
 
 }

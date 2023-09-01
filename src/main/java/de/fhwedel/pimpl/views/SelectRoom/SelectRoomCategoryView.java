@@ -1,11 +1,12 @@
 package de.fhwedel.pimpl.views.SelectRoom;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -15,9 +16,9 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Navigation;
-import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.components.navigation.Routes;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
@@ -28,51 +29,48 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("serial")
 @Route(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD)
 @SpringComponent
 @UIScope
-public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnterObserver {
-
+public class SelectRoomCategoryView extends Composite<Component> implements BeforeEnterObserver {
+    private final GlobalState globalState = GlobalState.getInstance();
     private final DatePicker checkIn = new DatePicker("Anreisedatum");
     private final DatePicker checkOut = new DatePicker("Abreisedatum");
     private final HorizontalLayout checkInOut = new HorizontalLayout(checkIn, checkOut);
-    private final Label describeRoomCategory = new Label("Zimmerkategorie suchen");
-
+    private final Label labelForCategoryQuery = new Label("Zimmerkategorie suchen");
     private final TextField roomCategoryQuery = new TextField();
     private final Button roomCategorySearch = new Button("Suchen", event -> search(Optional.of(roomCategoryQuery.getValue())));
     private final Grid<RoomCategory> roomCategories = new Grid<>();
-
-    private final Header header = new Header("Zimmerkategorie und Buchungszeitraum auswählen", "Wähle deine gewünschte Zimmerkategorie und den für dich passenden Buchungszeitraum aus.");
-
-    private final Navigation navigation = new Navigation("Verfügbare Zimmer ermitteln", false);
-
-    private final VerticalLayout roomFind = new VerticalLayout(describeRoomCategory, roomCategoryQuery, roomCategorySearch, roomCategories);
-    VerticalLayout view = new VerticalLayout(header, checkInOut, roomFind, navigation);
-
+    private final ForwardButton forwardButton = new ForwardButton("Verfügbare Zimmer ermitteln", event -> {
+        if (validUserInput()) {
+            globalState.setSelectedRoomCategory(this.selectedRoomCategory);
+            Booking booking = new Booking(globalState.getCurrentDate(), this.checkIn.getValue(), this.checkOut.getValue(), globalState.getCurrentCustomer());
+            globalState.setCurrentBooking(booking);
+            Routes.navigateTo(Routes.SELECT_ROOM_CHECK_AVAILABLE);
+        }
+    });
+    private final PageLayout pageLayout = new PageLayout("Zimmerkategorie und Buchungszeitraum auswählen",
+            "Wähle eine Zimmerkategorie und einen Buchungszeitraum aus.", checkInOut,
+            labelForCategoryQuery, roomCategoryQuery, roomCategorySearch, roomCategories, forwardButton);
     private RoomCategory selectedRoomCategory = null;
-
     private final RoomCategoryRepo roomCategoryRepo;
 
     public SelectRoomCategoryView(RoomCategoryRepo roomCategoryRepo) {
         this.roomCategoryRepo = roomCategoryRepo;
-        this.configureLayout();
         this.configureRoomCategories();
         this.attachListeners();
-
-        this.add(view);
+        this.forwardButton.setEnabled(true);
     }
 
-    private void configureLayout() {
-        // Set padding, spacing, etc.
-        this.setPadding(true);
-        this.setSpacing(true);
-        this.roomFind.setSpacing(false);
-        this.roomFind.setPadding(false);
-        this.checkInOut.setSpacing(true);
-        this.checkInOut.setPadding(false);
-        this.roomCategoryQuery.getStyle().set("margin-bottom", "15px");
-        this.roomCategories.getStyle().set("margin-top", "15px");
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        this.checkIn.setValue(GlobalState.getInstance().getCurrentDate());
+        this.checkOut.setValue(GlobalState.getInstance().getCurrentDate().plusDays(1));
+    }
+
+    @Override
+    protected Component initContent() {
+        return this.pageLayout;
     }
 
     private void configureRoomCategories() {
@@ -84,51 +82,21 @@ public class SelectRoomCategoryView extends VerticalLayout implements BeforeEnte
         roomCategories.setHeight("200px");
         roomCategories.setWidth("700px");
         roomCategories.addSelectionListener(event -> {
-            if (event.getFirstSelectedItem().isPresent()) {
-                selectedRoomCategory = event.getFirstSelectedItem().get();
-            } else {
-                selectedRoomCategory = null;
-            }
+            if (event.getFirstSelectedItem().isPresent()) selectedRoomCategory = event.getFirstSelectedItem().get();
+            else selectedRoomCategory = null;
         });
     }
 
     private void attachListeners() {
-        GlobalState globalState = GlobalState.getInstance();
-
         PropertyChangeListener listener = evt -> {
             String propertyName = evt.getPropertyName();
             Object newValue = evt.getNewValue();
-
-            if (propertyName.equals(GlobalState.CURRENT_DATE_PROPERTY_NAME)) {
-                LocalDate newCurrentDate = (LocalDate) newValue;
-                // Handle current date change
-                this.checkIn.setValue(newCurrentDate);
-                this.checkOut.setValue(newCurrentDate.plusDays(1));
-            }
+            if (!propertyName.equals(GlobalState.CURRENT_DATE_PROPERTY_NAME)) return;
+            LocalDate newCurrentDate = (LocalDate) newValue;
+            this.checkIn.setValue(newCurrentDate);
+            this.checkOut.setValue(newCurrentDate.plusDays(1));
         };
-
         globalState.addPropertyChangeListener(listener);
-
-        this.navigation.getForwardNavigation().setEnabled(true);
-        this.navigation.getForwardNavigation().addClickListener(event -> {
-            if (validUserInput()) {
-                globalState.setSelectedRoomCategory(this.selectedRoomCategory);
-                Booking booking = new Booking(
-                        globalState.getCurrentDate(),
-                        this.checkIn.getValue(),
-                        this.checkOut.getValue(),
-                        globalState.getCurrentCustomer()
-                );
-                globalState.setCurrentBooking(booking);
-                Routes.navigateTo(Routes.SELECT_ROOM_CHECK_AVAILABLE);
-            }
-        });
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        this.checkIn.setValue(GlobalState.getInstance().getCurrentDate());
-        this.checkOut.setValue(GlobalState.getInstance().getCurrentDate().plusDays(1));
     }
 
     private boolean validUserInput() {

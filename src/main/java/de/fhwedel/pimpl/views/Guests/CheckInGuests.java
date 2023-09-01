@@ -1,14 +1,16 @@
 package de.fhwedel.pimpl.views.Guests;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
-import de.fhwedel.pimpl.Utility.CustomDialog;
+import de.fhwedel.pimpl.components.CustomDialog;
 import de.fhwedel.pimpl.Utility.GlobalState;
-import de.fhwedel.pimpl.Utility.Routes;
+import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.Guest;
 import de.fhwedel.pimpl.repos.BookingRepo;
@@ -16,41 +18,48 @@ import de.fhwedel.pimpl.repos.BookingRepo;
 import java.util.List;
 import java.util.Optional;
 
-public class CheckInGuests extends VerticalLayout {
+public class CheckInGuests extends Composite<Component> {
     private final TextField guestQuery = new TextField();
+    private final Button guestSearch = new Button("Suchen", event -> searchGuests(Optional.of(guestQuery.getValue())));
     private final Button checkInGuest = new Button("Einchecken");
     private final Button updateGuest = new Button("Aktualisieren");
+    private final HorizontalLayout buttons = new HorizontalLayout(checkInGuest, updateGuest);
     private final Grid<Guest> guests = new Grid<>();
+
+    private final VerticalLayout layout = new VerticalLayout(guestQuery, guestSearch, guests, buttons);
     private final BookingRepo repo;
+
     public CheckInGuests(BookingRepo repo) {
         this.repo = repo;
-
         this.initTable();
         this.initCheckInGuestButton();
         this.initUpdateGuestButton();
-
-        Button guestSearch = new Button("Suchen", event -> searchGuests(Optional.of(guestQuery.getValue())));
-        HorizontalLayout buttons = new HorizontalLayout(checkInGuest, updateGuest);
-
-        this.setPadding(false);
-        this.add(guestQuery, guestSearch, guests, buttons);
     }
+
+    @Override
+    protected Component initContent() {
+        return this.layout;
+    }
+
     private void searchGuests(Optional<String> query) {
         GlobalState globalState = GlobalState.getInstance();
         Booking currentBooking = globalState.getCurrentBooking();
         List<Guest> guests = currentBooking.getGuests();
         if (query.isPresent()) {
-           guests = guests.stream().filter(guest -> guest.getName().contains(query.get())).toList();
+            guests = guests.stream().filter(guest -> guest.getName().contains(query.get())).toList();
         }
 
         this.guests.setItems(DataProvider.ofCollection(guests));
     }
+
     private void initCheckInGuestButton() {
         this.checkInGuest.setEnabled(false);
     }
+
     private void initUpdateGuestButton() {
         this.updateGuest.setEnabled(false);
     }
+
     private void toggleButtonRow() {
         this.checkInGuest.setEnabled(!this.checkInGuest.isEnabled());
         this.updateGuest.setEnabled(!this.updateGuest.isEnabled());

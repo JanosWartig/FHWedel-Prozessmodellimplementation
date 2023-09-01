@@ -1,4 +1,4 @@
-package de.fhwedel.pimpl.Utility;
+package de.fhwedel.pimpl.components.navigation;
 
 import com.vaadin.flow.component.UI;
 

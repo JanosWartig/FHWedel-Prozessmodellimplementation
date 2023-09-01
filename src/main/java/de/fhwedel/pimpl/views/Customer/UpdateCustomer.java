@@ -5,7 +5,6 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.PropertyId;
@@ -16,9 +15,10 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Navigation;
-import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.components.navigation.Routes;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.BackButton;
+import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -26,9 +26,6 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 @SpringComponent
 @UIScope
 public class UpdateCustomer extends Composite<Component> implements BeforeEnterObserver {
-
-    private final String headlineCheckCustomer = "Kunden-Daten überprüfen";
-    private final String subheadlineCheckCustomer = "Sind alle Daten korrekt?";
 
     @PropertyId("surname")
     private final TextField customerSurname = new TextField();
@@ -42,48 +39,35 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
     private final TextField city = new TextField();
     private final IntegerField customerDiscount = new IntegerField();
 
+    private final FormLayout customerForm = new FormLayout();
+
     private final Button customerEdit = new Button("Daten bearbeiten");
     private final Button customerUpdate = new Button("Aktualisieren");
     private final Button customerDelete = new Button("Löschen");
 
-    private final Header header = new Header(this.headlineCheckCustomer, this.subheadlineCheckCustomer);
-
     private final HorizontalLayout customerControl = new HorizontalLayout(customerUpdate, customerDelete);
 
-    private final VerticalLayout view;
+    private final ForwardButton forwardButton = new ForwardButton("Zimmerkategorie auswählen", event -> {
+        if (!validateFields()) return;
+        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
+    });
+
+    private final BackButton backButton = new BackButton("Kunde suchen", event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
+
+    private final HorizontalLayout navigation = new HorizontalLayout(backButton, forwardButton);
+
+    private final PageLayout pageLayout = new PageLayout("Kunde überprüfen", "Überprüfe, ob alle Daten richtig sind.", customerForm, customerControl, customerEdit, navigation);
 
     private final CustomerRepo customerRepo;
 
     public UpdateCustomer(CustomerRepo repo) {
         this.customerRepo = repo;
-
-        FormLayout customerForm = new FormLayout();
-        customerForm.addFormItem(customerSurname, "Nachname");
-        customerForm.addFormItem(customerPrename, "Vorname");
-        customerForm.addFormItem(street, "Straße");
-        customerForm.addFormItem(zip, "PLZ");
-        customerForm.addFormItem(city, "Stadt");
-        customerForm.addFormItem(customerDiscount, "Rabatt");
-
+        this.initForm();
+        this.forwardButton.setEnabled(true);
         this.customerEdit.addClickListener(event -> this.initEditCustomerView());
         this.customerUpdate.addClickListener(event -> this.onUpdateCustomerClick());
         this.customerDelete.addClickListener(event -> this.onDeleteCustomerClick());
-
-        Navigation navigation = new Navigation("Kunde suchen", "Zimmerkategorie auswählen");
-        navigation.setFinishButtonActive(true);
-        navigation.getForwardNavigation().addClickListener(event -> this.navForward());
-        navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
-
-        this.header.getIsSupervisorCheckbox().addValueChangeListener(event -> this.customerDiscount.setEnabled(event.getValue()));
-
-        VerticalLayout customersForm = new VerticalLayout(
-                header,
-                customerForm,
-                customerControl,
-                customerEdit,
-                navigation);
-        view = new VerticalLayout(customersForm);
-        this.view.setWidth("850px");
+        this.pageLayout.getHeader().getIsSupervisorCheckbox().addValueChangeListener(event -> this.customerDiscount.setEnabled(event.getValue()));
     }
 
     @Override
@@ -100,7 +84,16 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
     @Override
     protected Component initContent() {
-        return view;
+        return this.pageLayout;
+    }
+
+    private void initForm() {
+        customerForm.addFormItem(customerSurname, "Nachname");
+        customerForm.addFormItem(customerPrename, "Vorname");
+        customerForm.addFormItem(street, "Straße");
+        customerForm.addFormItem(zip, "PLZ");
+        customerForm.addFormItem(city, "Stadt");
+        customerForm.addFormItem(customerDiscount, "Rabatt");
     }
 
     private void resetView() {
@@ -113,18 +106,11 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
         this.customerControl.setVisible(false);
         this.customerEdit.setVisible(true);
-
-        this.header.setHeadline(this.headlineCheckCustomer);
-        this.header.setSecondHeadline(this.subheadlineCheckCustomer);
     }
 
     private void initEditCustomerView() {
         this.customerControl.setVisible(true);
         this.customerEdit.setVisible(false);
-        String headlineUpdateCustomer = "Deine Daten aktualisieren";
-        this.header.setHeadline(headlineUpdateCustomer);
-        String subheadlineUpdateCustomer = "Aktualisiere deine Daten.";
-        this.header.setSecondHeadline(subheadlineUpdateCustomer);
         this.customerSurname.setEnabled(true);
         this.customerPrename.setEnabled(true);
         this.street.setEnabled(true);
@@ -158,11 +144,6 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
             return false;
         }
         return true;
-    }
-
-    private void navForward() {
-        if (!validateFields()) return;
-        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
     }
 
 }

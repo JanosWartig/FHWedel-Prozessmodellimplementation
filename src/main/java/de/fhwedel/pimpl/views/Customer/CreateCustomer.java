@@ -3,7 +3,7 @@ package de.fhwedel.pimpl.views.Customer;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.PropertyId;
@@ -14,9 +14,10 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
-import de.fhwedel.pimpl.Utility.Routes;
-import de.fhwedel.pimpl.components.Navigation;
-import de.fhwedel.pimpl.components.Header;
+import de.fhwedel.pimpl.components.navigation.Routes;
+import de.fhwedel.pimpl.components.PageLayout;
+import de.fhwedel.pimpl.components.navigation.BackButton;
+import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -35,46 +36,28 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
     private final IntegerField customerDiscount = new IntegerField();
     private final FormLayout customerForm = new FormLayout();
 
-    private final Navigation navigation = new Navigation("Kunde suchen","Zimmerkategorie auswählen und Kunde anlegen");
+    private final ForwardButton forwardButton = new ForwardButton("Zimmerkategorie auswählen und Kunde anlegen", event -> {
+        if (!this.validateFields()) return;
+        Customer newCustomer = this.createNewCustomer();
+        GlobalState.getInstance().setCurrentCustomer(newCustomer);
+        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
+    });
 
-    private final Header header = new Header("Kunde anlegen", "Erstelle einen neuen Kunden.");
+    private final BackButton backButton = new BackButton("Kunde suchen", event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
 
-    private VerticalLayout customersForm = new VerticalLayout(
-            header,
-            customerForm,
-            navigation);
-    private final VerticalLayout view;
+    private final HorizontalLayout navigation = new HorizontalLayout(backButton, forwardButton);
+
+    private final PageLayout pageLayout = new PageLayout("Kunde anlegen", "Erstelle einen neuen Kunden.", customerForm, navigation);
 
     private final CustomerRepo customerRepo;
 
     public CreateCustomer(CustomerRepo customerRepo) {
         this.customerRepo = customerRepo;
-
-        customerForm.addFormItem(customerSurname, "Nachname");
-        customerForm.addFormItem(customerPrename, "Vorname");
-        customerForm.addFormItem(customerStreet, "Straße");
-        customerForm.addFormItem(customerZIP, "PLZ");
-        customerForm.addFormItem(customerCity, "Land");
-        customerForm.addFormItem(customerDiscount, "Rabatt");
-
+        this.initForm();
         customerDiscount.setValue(0);
         customerDiscount.setEnabled(GlobalState.getInstance().isSupervisorModeActive());
-
-        this.navigation.getForwardNavigation().addClickListener(event -> {
-            if (!this.validateFields()) return;
-            Customer newCustomer = this.createNewCustomer();
-            GlobalState.getInstance().setCurrentCustomer(newCustomer);
-            Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
-        });
-
-        this.navigation.getBack().addClickListener(event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
-
-        this.navigation.setFinishButtonActive(true);
-
-        this.header.getIsSupervisorCheckbox().addValueChangeListener(event -> customerDiscount.setEnabled(event.getValue()));
-
-        this.view = new VerticalLayout(customersForm);
-        this.view.setWidth("850px");
+        this.forwardButton.setEnabled(true);
+        this.pageLayout.getHeader().getIsSupervisorCheckbox().addValueChangeListener(event -> customerDiscount.setEnabled(event.getValue()));
     }
 
     @Override
@@ -90,7 +73,16 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
 
     @Override
     protected Component initContent() {
-        return view;
+        return pageLayout;
+    }
+
+    private void initForm() {
+        customerForm.addFormItem(customerSurname, "Nachname");
+        customerForm.addFormItem(customerPrename, "Vorname");
+        customerForm.addFormItem(customerStreet, "Straße");
+        customerForm.addFormItem(customerZIP, "PLZ");
+        customerForm.addFormItem(customerCity, "Land");
+        customerForm.addFormItem(customerDiscount, "Rabatt");
     }
 
     private Customer createNewCustomer() {
