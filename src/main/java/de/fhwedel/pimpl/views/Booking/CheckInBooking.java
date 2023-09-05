@@ -16,12 +16,17 @@ import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.repos.BookingRepo;
 import de.fhwedel.pimpl.views.Guests.CheckInGuests;
 
+import java.util.Optional;
+
 @Route(Routes.BOOKING_CHECK_IN)
 @SpringComponent
 @UIScope
 public class CheckInBooking extends Composite<Component> implements BeforeEnterObserver {
 
-    private final PageLayout pageLayout = new PageLayout("Buchung einchecken", "Gäste die eingeckeckt werden sollen, müssen korrekte Dokumente vorzeigen können.");
+    private final GlobalState globalState = GlobalState.getInstance();
+    private final PageLayout pageLayout = new PageLayout("Buchung einchecken", "Checke die Buchung ein.");;
+
+    private Booking currentBooking = null;
     private final BookingRepo repo;
 
     public CheckInBooking(BookingRepo repo) {
@@ -34,7 +39,19 @@ public class CheckInBooking extends Composite<Component> implements BeforeEnterO
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.SEARCH_CUSTOMER);
+        if (this.globalState.getCurrentBookingID() == -1) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        Optional<Booking> booking = this.repo.findById(this.globalState.getCurrentBookingID());
+
+        if (booking.isEmpty()) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        this.currentBooking = booking.get();
     }
 
     @Override
@@ -46,10 +63,9 @@ public class CheckInBooking extends Composite<Component> implements BeforeEnterO
         CustomDialog customDialog = new CustomDialog("Die Buchung wurde erfolgreich eingecheckt.", "Fortfahren.");
         customDialog.open();
         customDialog.getCloseButton().addClickListener(event -> {
-            GlobalState globalState = GlobalState.getInstance();
-            globalState.getCurrentBooking().setBookingDate(globalState.getCurrentDate());
-            globalState.getCurrentBooking().setBookingState(Booking.BookingState.CheckedIn);
-            this.repo.save(globalState.getCurrentBooking());
+            this.currentBooking.setCheckInIs(this.globalState.getCurrentDate());
+            this.currentBooking.setBookingState(Booking.BookingState.CheckedIn);
+            this.repo.save(this.currentBooking);
             customDialog.getDialog().close();
             Routes.navigateTo(Routes.PRE_CHECKOUT_ADDITIONAL_GUESTS);
         });

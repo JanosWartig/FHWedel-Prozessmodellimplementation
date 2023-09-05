@@ -22,6 +22,8 @@ import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
+import java.util.Optional;
+
 @Route(Routes.UPDATE_CUSTOMER)
 @SpringComponent
 @UIScope
@@ -58,6 +60,7 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
     private final PageLayout pageLayout = new PageLayout("Kunde überprüfen", "Überprüfe, ob alle Daten richtig sind.", customerForm, customerControl, customerEdit, navigation);
 
+    private Customer currentCustomer = null;
     private final CustomerRepo customerRepo;
 
     public UpdateCustomer(CustomerRepo repo) {
@@ -73,13 +76,20 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         this.resetView();
-        Customer customer = GlobalState.getInstance().getCurrentCustomer();
-        this.customerSurname.setValue(customer.getSurname());
-        this.customerPrename.setValue(customer.getPrename());
-        this.street.setValue(customer.getStreet());
-        this.zip.setValue(customer.getZip());
-        this.city.setValue(customer.getCity());
-        this.customerDiscount.setValue(customer.getDiscount());
+        Optional<Customer> customer = this.customerRepo.findById(GlobalState.getInstance().getCurrentCustomerID());
+        if (customer.isEmpty()) {
+            Routes.navigateTo(Routes.SEARCH_CUSTOMER);
+            return;
+        }
+
+        this.currentCustomer = customer.get();
+
+        this.customerSurname.setValue(customer.get().getSurname());
+        this.customerPrename.setValue(customer.get().getPrename());
+        this.street.setValue(customer.get().getStreet());
+        this.zip.setValue(customer.get().getZip());
+        this.city.setValue(customer.get().getCity());
+        this.customerDiscount.setValue(customer.get().getDiscount());
     }
 
     @Override
@@ -103,7 +113,6 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
         this.zip.setEnabled(false);
         this.city.setEnabled(false);
         this.customerDiscount.setEnabled(false);
-
         this.customerControl.setVisible(false);
         this.customerEdit.setVisible(true);
     }
@@ -121,20 +130,20 @@ public class UpdateCustomer extends Composite<Component> implements BeforeEnterO
 
     private void onUpdateCustomerClick() {
         if (validateFields()) {
-            GlobalState globalState = GlobalState.getInstance();
-            globalState.getCurrentCustomer().setCity(this.city.getValue());
-            globalState.getCurrentCustomer().setDiscount(this.customerDiscount.getValue());
-            globalState.getCurrentCustomer().setPrename(this.customerPrename.getValue());
-            globalState.getCurrentCustomer().setStreet(this.street.getValue());
-            globalState.getCurrentCustomer().setSurname(this.customerSurname.getValue());
-            globalState.getCurrentCustomer().setZip(this.zip.getValue());
-            this.customerRepo.save(globalState.getCurrentCustomer());
+            this.currentCustomer.setSurname(this.customerSurname.getValue());
+            this.currentCustomer.setPrename(this.customerPrename.getValue());
+            this.currentCustomer.setStreet(this.street.getValue());
+            this.currentCustomer.setZip(this.zip.getValue());
+            this.currentCustomer.setCity(this.city.getValue());
+            this.currentCustomer.setDiscount(this.customerDiscount.getValue());
+
+            this.customerRepo.save(this.currentCustomer);
             this.resetView();
         }
     }
 
     private void onDeleteCustomerClick() {
-        this.customerRepo.deleteById(GlobalState.getInstance().getCurrentCustomer().getId());
+        this.customerRepo.deleteById(GlobalState.getInstance().getCurrentCustomerID());
         Routes.navigateTo(Routes.SEARCH_CUSTOMER);
     }
 

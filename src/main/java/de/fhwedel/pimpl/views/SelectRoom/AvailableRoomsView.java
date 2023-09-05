@@ -17,7 +17,6 @@ import de.fhwedel.pimpl.components.navigation.ErrorButton;
 import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.model.Room;
-import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.RoomRepo;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class AvailableRoomsView extends Composite<Component> implements BeforeEn
     private final ErrorButton errorButton = new ErrorButton("Keine Zimmer verfügbar", event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
 
     private final ForwardButton forwardButton = new ForwardButton("Preis bestimmen", event -> {
-        globalState.getCurrentBooking().setRoom(this.selectedRoom);
+        globalState.setCurrentRoomID(this.selectedRoom.getId());
         Routes.navigateTo(Routes.SELECT_ROOM_CALCULATE_PRICE);
     });
 
@@ -55,8 +54,7 @@ public class AvailableRoomsView extends Composite<Component> implements BeforeEn
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        RoomCategory roomCategory = GlobalState.getInstance().getSelectedRoomCategory();
-        List<Room> rooms = roomRepo.findByRoomCategory(roomCategory);
+        List<Room> rooms = roomRepo.findByRoomCategoryId(GlobalState.getInstance().getCurrentRoomCategoryID());
         if (!rooms.isEmpty()) this.rooms.setItems(DataProvider.ofCollection(rooms));
     }
 

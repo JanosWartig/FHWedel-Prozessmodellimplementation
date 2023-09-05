@@ -14,9 +14,26 @@ public class GlobalState {
     private static GlobalState globalState;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
-    private Customer currentCustomer = null;
+    private Integer currentCustomerID = -1;
+    private Integer currentRoomCategoryID = -1;
+    private LocalDate bookingCheckIn = null;
+    private LocalDate bookingCheckOut = null;
+
+    private Integer currentRoomID = -1;
+
+
+    private Integer currentBookingID = -1;
+    private Integer currentGuestID = -1;
+
+
+
+
+
+
+
+
+
     private Booking currentBooking = null;
-    private RoomCategory selectedRoomCategory = null;
 
     private Guest currentGuest = null;
 
@@ -34,38 +51,74 @@ public class GlobalState {
         return globalState;
     }
 
-    public void resetGlobalState() {
-        currentCustomer = null;
-        currentBooking = null;
-        selectedRoomCategory = null;
-        currentGuest = null;
-        isSupervisorModeActive = false;
-        currentDate = LocalDate.now();
+    public int getCurrentCustomerID() {
+    	return this.currentCustomerID;
     }
 
-    public Customer getCurrentCustomer() {
-        return currentCustomer;
+    public void setCurrentCustomerID(int currentCustomerID) {
+    	this.currentCustomerID = currentCustomerID;
     }
 
-    public void setCurrentCustomer(Customer currentCustomer) {
-        this.currentCustomer = currentCustomer;
+    public int getCurrentRoomCategoryID() {
+    	return this.currentRoomCategoryID;
     }
 
-    public RoomCategory getSelectedRoomCategory() {
-        return selectedRoomCategory;
+    public void setCurrentRoomCategoryID(int currentRoomCategoryID) {
+    	this.currentRoomCategoryID = currentRoomCategoryID;
     }
 
-    public void setSelectedRoomCategory(RoomCategory selectedRoomCategory) {
-        this.selectedRoomCategory = selectedRoomCategory;
+    public LocalDate getBookingCheckIn() {
+    	return this.bookingCheckIn;
     }
+
+    public void setBookingCheckIn(LocalDate bookingCheckIn) {
+    	this.bookingCheckIn = bookingCheckIn;
+    }
+
+    public LocalDate getBookingCheckOut() {
+    	return this.bookingCheckOut;
+    }
+
+    public void setBookingCheckOut(LocalDate bookingCheckOut) {
+    	this.bookingCheckOut = bookingCheckOut;
+    }
+
+    public int getCurrentRoomID() {
+    	return this.currentRoomID;
+    }
+
+    public void setCurrentRoomID(int currentRoomID) {
+    	this.currentRoomID = currentRoomID;
+    }
+
+    public int getCurrentBookingID() {
+    	return this.currentBookingID;
+    }
+
+    public void setCurrentBookingID(int currentBookingID) {
+    	this.currentBookingID = currentBookingID;
+    }
+
+    public int getCurrentGuestID() {
+    	return this.currentGuestID;
+    }
+
+    public void setCurrentGuestID(int currentGuestID) {
+    	this.currentGuestID = currentGuestID;
+    }
+
+
+
+
+
+
+
 
     public Booking getCurrentBooking() {
         return currentBooking;
     }
 
-    public void setCurrentBooking(Booking currentBooking) {
-        this.currentBooking = currentBooking;
-    }
+
 
     public void setCurrentGuest(Guest currentGuest) {
     	this.currentGuest = currentGuest;

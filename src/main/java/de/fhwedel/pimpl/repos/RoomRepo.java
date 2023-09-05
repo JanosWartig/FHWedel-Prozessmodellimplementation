@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface RoomRepo extends JpaRepository<Room, Integer> {
 
-    List<Room> findByRoomCategory(RoomCategory roomCategory);
+    List<Room> findByRoomCategoryId(Integer roomCategoryId);
 
 }

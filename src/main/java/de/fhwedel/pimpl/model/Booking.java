@@ -1,6 +1,5 @@
 package de.fhwedel.pimpl.model;
 
-import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -17,8 +16,10 @@ public class Booking {
         Reserved,
         CheckedIn,
         CheckedOut,
+
         Finished,
         Canceled,
+
         Canceled_Finished
     }
 
@@ -27,8 +28,6 @@ public class Booking {
     @Column(name = "booking_id")
     private Integer id;
 
-    @NotNull(message = "Pflichtangabe")
-    @Column(unique=true, updatable = false)
     private String bookingNumber;
 
     @NotNull(message = "Pflichtangabe")
@@ -68,49 +67,37 @@ public class Booking {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Guest> guests;
 
-    @OneToMany
-    @JoinColumn(name = "claims_id")
-    private ArrayList<Claims> claims;
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Claim> claims;
 
     public Booking() { }
 
-    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkOutShould, Customer customer) {
-        if (checkInShould.isBefore(bookingDate)) {
-            throw new IllegalArgumentException("Check-In-Datum muss größer oder gleich dem Buchungsdatum sein.");
-        }
-        if (checkInShould.isAfter(checkOutShould)) {
-            throw new IllegalArgumentException("Check-Out-Datum muss größer dem Buchungsdatum sein.");
-        }
-
-        this.bookingNumber = GenerateUniqueNumber.createUniqueIdentifier();
+    public Booking(LocalDate bookingDate, BookingState bookingState, String comment, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate, Customer customer, Room room) {
         this.bookingDate = bookingDate;
-        this.checkInShould = checkInShould;
-        this.checkOutShould = checkOutShould;
-        this.customer = customer;
-        this.guests = new ArrayList<>();
-    }
-
-    public Booking(LocalDate bookingDate, LocalDate checkInShould, LocalDate checkInIs, LocalDate checkOutShould, LocalDate checkOutIs, Integer roomPrice, String licensePlate) {
-        if (checkInShould.isBefore(bookingDate) || checkInIs.isBefore(bookingDate)) {
-            throw new IllegalArgumentException("Check-In-Datum muss größer oder gleich dem Buchungsdatum sein.");
-        }
-        if (checkInShould.isAfter(checkOutShould) || checkInIs.isAfter(checkOutIs)) {
-            throw new IllegalArgumentException("Check-Out-Datum muss größer dem Buchungsdatum sein.");
-        }
-
-        this.bookingNumber = GenerateUniqueNumber.createUniqueIdentifier();;
-        this.bookingDate = bookingDate;
+        this.bookingState = bookingState;
+        this.comment = comment;
         this.checkInShould = checkInShould;
         this.checkInIs = checkInIs;
         this.checkOutShould = checkOutShould;
         this.checkOutIs = checkOutIs;
         this.roomPrice = roomPrice;
         this.licensePlate = licensePlate;
+        this.customer = customer;
+        this.room = room;
         this.guests = new ArrayList<>();
+        this.claims = new ArrayList<>();
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getBookingNumber() {
         return bookingNumber;
+    }
+
+    public void setBookingNumber(String bookingNumber) {
+        this.bookingNumber = bookingNumber;
     }
 
 
@@ -122,8 +109,8 @@ public class Booking {
         this.bookingDate = bookingDate;
     }
 
-    public String getBookingState() {
-        return bookingState.toString();
+    public BookingState getBookingState() {
+        return bookingState;
     }
 
     public void setBookingState(BookingState bookingState) {
@@ -223,9 +210,19 @@ public class Booking {
         }
     }
 
-    public void setGuests(List<Guest> guests) {
-        this.guests = guests;
+    public void removeGuest(Guest guest) {
+        this.guests.removeIf(g -> Objects.equals(g.getId(), guest.getId()));
     }
+
+    public List<Claim> getClaims() {
+        return claims;
+    }
+
+    public void addClaim(Claim claim) {
+        claim.setParentBooking(this);
+        this.claims.add(claim);
+    }
+
 
     @Override
     public String toString() {

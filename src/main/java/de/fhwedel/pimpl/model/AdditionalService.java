@@ -24,10 +24,12 @@ public class AdditionalService {
     private Integer valueAddedTaxPercent = 19;
 
     public AdditionalService() {}
+
+    // Wenn der Wert der Umsatzsteuer nicht angegeben wird, wird der Standardwert von 19% verwendet.
     public AdditionalService(String name, Integer price, Integer valueAddedTaxPercent) {
         this.name = name;
         this.price = price;
-        this.valueAddedTaxPercent = valueAddedTaxPercent;
+        if (valueAddedTaxPercent != null) this.valueAddedTaxPercent = valueAddedTaxPercent;
     }
 
     public String getName() {

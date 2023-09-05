@@ -14,6 +14,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import de.fhwedel.pimpl.Utility.AllowedToPerformActionManager;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.components.navigation.Routes;
@@ -43,9 +44,9 @@ public class SelectRoomCategoryView extends Composite<Component> implements Befo
     private final Grid<RoomCategory> roomCategories = new Grid<>();
     private final ForwardButton forwardButton = new ForwardButton("Verfügbare Zimmer ermitteln", event -> {
         if (validUserInput()) {
-            globalState.setSelectedRoomCategory(this.selectedRoomCategory);
-            Booking booking = new Booking(globalState.getCurrentDate(), this.checkIn.getValue(), this.checkOut.getValue(), globalState.getCurrentCustomer());
-            globalState.setCurrentBooking(booking);
+            globalState.setCurrentRoomCategoryID(this.selectedRoomCategory.getId());
+            globalState.setBookingCheckIn(this.checkIn.getValue());
+            globalState.setBookingCheckOut(this.checkOut.getValue());
             Routes.navigateTo(Routes.SELECT_ROOM_CHECK_AVAILABLE);
         }
     });
@@ -109,30 +110,11 @@ public class SelectRoomCategoryView extends Composite<Component> implements Befo
             return false;
         }
 
-        // Überprüfung: checkInDate >= today
-        if (checkInDate.isBefore(today)) {
-            Notifications.showErrorNotification("Das Check-In Datum liegt in der Vergangenheit.");
-            return false;
-        }
-
-        // Überprüfung: checkOutDate > checkInDate
-        if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
-            Notifications.showErrorNotification("Das Check-Out Datum liegt vor dem Check-In Datum.");
-            return false;
-        }
-
-        // Überprüfung: checkOutDate <= checkInDate + 14 Tage
-        LocalDate maxCheckOutDate = checkInDate.plusDays(14);
-        if (checkOutDate.isAfter(maxCheckOutDate) && !GlobalState.getInstance().isSupervisorModeActive()) {
-            Notifications.showErrorNotification("Die Zeitspanne zwischen Check-In und Check-Out beträgt mehr als 14 Tage.");
-            return false;
-        }
-
-        return true;
+        return AllowedToPerformActionManager.isValidBookingPeriod(checkInDate, checkOutDate, today);
     }
 
     public void search(Optional<String> query) {
-        List<RoomCategory> items = query.map(roomCategoryRepo::findByKeyword).orElse(Collections.emptyList());
+        List<RoomCategory> items = query.map(roomCategoryRepo::findByNameContainingIgnoreCase).orElse(Collections.emptyList());
         roomCategories.setItems(DataProvider.ofCollection(items));
     }
 

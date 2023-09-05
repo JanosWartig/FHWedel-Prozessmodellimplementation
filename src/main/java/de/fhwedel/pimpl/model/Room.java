@@ -41,4 +41,7 @@ public class Room {
         this.roomCategory = roomCategory;
     }
 
+    public Integer getId() {
+        return id;
+    }
 }

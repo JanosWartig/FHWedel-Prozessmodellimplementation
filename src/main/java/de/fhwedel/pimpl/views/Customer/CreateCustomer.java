@@ -18,6 +18,7 @@ import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.BackButton;
 import de.fhwedel.pimpl.components.navigation.ForwardButton;
+import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 
@@ -36,12 +37,7 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
     private final IntegerField customerDiscount = new IntegerField();
     private final FormLayout customerForm = new FormLayout();
 
-    private final ForwardButton forwardButton = new ForwardButton("Zimmerkategorie auswählen und Kunde anlegen", event -> {
-        if (!this.validateFields()) return;
-        Customer newCustomer = this.createNewCustomer();
-        GlobalState.getInstance().setCurrentCustomer(newCustomer);
-        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
-    });
+    private final ForwardButton forwardButton = new ForwardButton("Zimmerkategorie auswählen und Kunde anlegen", event -> this.createNewCustomer());
 
     private final BackButton backButton = new BackButton("Kunde suchen", event -> Routes.navigateTo(Routes.SEARCH_CUSTOMER));
 
@@ -61,14 +57,8 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        this.customerSurname.setValue("");
-        this.customerPrename.setValue("");
-        this.customerStreet.setValue("");
-        this.customerZIP.setValue("");
-        this.customerCity.setValue("");
-        this.customerDiscount.setValue(0);
-        GlobalState.getInstance().resetGlobalState();
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        this.resetForm();
     }
 
     @Override
@@ -85,20 +75,13 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
         customerForm.addFormItem(customerDiscount, "Rabatt");
     }
 
-    private Customer createNewCustomer() {
-        Customer customer = new Customer(
-                this.customerSurname.getValue(),
-                this.customerPrename.getValue(),
-                this.customerStreet.getValue(),
-                this.customerZIP.getValue(),
-                this.customerCity.getValue(),
-                this.customerDiscount.getValue()
-        );
-
-        GlobalState.getInstance().setCurrentCustomer(customer);
-        this.customerRepo.save(customer);
-
-        return customer;
+    private void resetForm() {
+        customerSurname.setValue("");
+        customerPrename.setValue("");
+        customerStreet.setValue("");
+        customerZIP.setValue("");
+        customerCity.setValue("");
+        customerDiscount.setValue(0);
     }
 
     private boolean validateFields() {
@@ -108,5 +91,28 @@ public class CreateCustomer extends Composite<Component> implements BeforeEnterO
         }
         return true;
     }
+
+    private void createNewCustomer() {
+        if (!this.validateFields()) return;
+
+        Customer customer = new Customer(
+                this.customerSurname.getValue(),
+                this.customerPrename.getValue(),
+                this.customerStreet.getValue(),
+                this.customerZIP.getValue(),
+                this.customerCity.getValue(),
+                this.customerDiscount.getValue()
+        );
+
+        Customer newCustomer = this.customerRepo.save(customer);
+        String customerNumber = "customer_" + newCustomer.getId();
+        newCustomer.setCustomerNumber(customerNumber);
+        this.customerRepo.save(newCustomer);
+        GlobalState.getInstance().setCurrentCustomerID(newCustomer.getId());
+
+        Routes.navigateTo(Routes.SELECT_ROOM_CATEGORY_AND_BOOKING_PERIOD);
+    }
+
+
 
 }

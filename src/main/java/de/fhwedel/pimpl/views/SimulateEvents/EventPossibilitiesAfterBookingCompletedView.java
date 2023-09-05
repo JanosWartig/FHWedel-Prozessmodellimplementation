@@ -14,19 +14,22 @@ import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.repos.BookingRepo;
 
+import java.util.Optional;
+
 @Route(Routes.EVENTS_AFTER_BOOKING_COMPLETED)
 @SpringComponent
 @UIScope
 public class EventPossibilitiesAfterBookingCompletedView extends Composite<Component> implements BeforeEnterObserver {
 
+    private final GlobalState globalState = GlobalState.getInstance();
     private final Button cancelBookingEvent = new Button("Kunde beantragt die Stornierung der Buchung", event -> handelCancelBookingEvent());
-    private final Button checkInPlusOneDayEvent = new Button("Die Anreise verschiebt sich um einen Tag", event -> {
-
-    });
+    private final Button checkInPlusOneDayEvent = new Button("Die Anreise verschiebt sich um einen Tag", event -> handelCancelBookingEvent());
     private final Button guestCheckInEvent = new Button("Der Gast möchte einchecken.", event -> Routes.navigateTo(Routes.BOOKING_CHECK_IN));
     private final PageLayout pageLayout = new PageLayout("Event Simulation",
             "Hier werden die Events simuliert, die nach dem Versenden der Buchungsbestätigung auftreten können.",
             cancelBookingEvent, checkInPlusOneDayEvent, guestCheckInEvent);
+
+    private Booking currentBooking = null;
     private final BookingRepo repo;
 
     public EventPossibilitiesAfterBookingCompletedView(BookingRepo repo) {
@@ -35,10 +38,19 @@ public class EventPossibilitiesAfterBookingCompletedView extends Composite<Compo
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        GlobalState globalState = GlobalState.getInstance();
-        if (globalState.getCurrentBooking() == null) {
-            Routes.navigateTo(Routes.SEARCH_CUSTOMER);
+        if (globalState.getCurrentBookingID() == -1) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
         }
+
+        Optional<Booking> booking = this.repo.findById(globalState.getCurrentBookingID());
+
+        if (booking.isEmpty()) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        this.currentBooking = booking.get();
     }
 
     @Override
@@ -47,11 +59,9 @@ public class EventPossibilitiesAfterBookingCompletedView extends Composite<Compo
     }
 
     public void handelCancelBookingEvent() {
-        GlobalState globalState = GlobalState.getInstance();
-        globalState.getCurrentBooking().setBookingState(Booking.BookingState.Canceled);
-        this.repo.save(globalState.getCurrentBooking());
-        Routes.navigateTo(Routes.BOOKING_CANCELED);
+        this.currentBooking.setBookingState(Booking.BookingState.Canceled);
+        this.repo.save(this.currentBooking);
+        Routes.navigateTo(Routes.BOOKING_FINISHED);
     }
-
 
 }

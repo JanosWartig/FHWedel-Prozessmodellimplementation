@@ -1,6 +1,5 @@
 package de.fhwedel.pimpl.model;
 
-import de.fhwedel.pimpl.Utility.GenerateUniqueNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -17,8 +16,6 @@ public class Customer {
 	@Column(name = "customer_id")
 	private Integer id;
 
-	@NotNull(message = "Pflichtangabe")
-	@Column(unique=true, updatable = false)
 	private String customerNumber;
 
 	@NotNull(message = "Pflichtangabe")
@@ -50,7 +47,6 @@ public class Customer {
 	public Customer() {}
 
 	public Customer(String surname, String prename, String street, String zip, String city, Integer discount) {
-		this.customerNumber = GenerateUniqueNumber.createUniqueIdentifier();
 		this.surname = surname;
 		this.prename = prename;
 		this.street = street;
@@ -65,6 +61,10 @@ public class Customer {
 
 	public String getCustomerNumber() {
 		return customerNumber;
+	}
+
+	public void setCustomerNumber(String customerNumber) {
+		this.customerNumber = customerNumber;
 	}
 
 	public String getSurname() {

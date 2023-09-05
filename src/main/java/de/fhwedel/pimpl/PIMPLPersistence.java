@@ -2,8 +2,10 @@ package de.fhwedel.pimpl;
 
 import java.util.Properties;
 
+import de.fhwedel.pimpl.model.AdditionalService;
 import de.fhwedel.pimpl.model.Room;
 import de.fhwedel.pimpl.model.RoomCategory;
+import de.fhwedel.pimpl.repos.AdditionalServicesRepo;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 import de.fhwedel.pimpl.repos.RoomRepo;
 import jakarta.persistence.EntityManagerFactory;
@@ -28,7 +30,7 @@ import javax.sql.DataSource;
 public class PIMPLPersistence {
 
 	@Bean
-	public CommandLineRunner exampleData(PIMPLConfig config, CustomerRepo cs, RoomCategoryRepo rc, RoomRepo roomRepo) {
+	public CommandLineRunner exampleData(PIMPLConfig config, CustomerRepo cs, RoomCategoryRepo rc, RoomRepo roomRepo, AdditionalServicesRepo asr) {
 		return (args) -> {
 			if (config.isRegenerate()) {
 				// Room Categories
@@ -41,6 +43,17 @@ public class PIMPLPersistence {
 					Room room = new Room(i, i > 10 ? big : small);
 					roomRepo.save(room);
 				}
+				// Additional Services
+				AdditionalService breakfast = new AdditionalService("Breakfast", 10, null);
+				AdditionalService dinner = new AdditionalService("Dinner", 20, null);
+				AdditionalService parking = new AdditionalService("Parking", 5, null);
+				AdditionalService wifi = new AdditionalService("Wifi", 2, null);
+				AdditionalService minibar = new AdditionalService("Minibar", 5, null);
+				asr.save(breakfast);
+				asr.save(dinner);
+				asr.save(parking);
+				asr.save(wifi);
+				asr.save(minibar);
 			}
 		};
 	}

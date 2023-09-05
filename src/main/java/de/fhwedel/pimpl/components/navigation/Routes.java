@@ -25,9 +25,11 @@ public class Routes {
     public static final String EVENTS_AFTER_BOOKING_COMPLETED = "/simulate-events-after-booking-completed";
 
     public static final String BOOKINGS_SEARCH = "/booking-search";
-    public static final String BOOKING_CANCELED = "/booking-canceled";
+    public static final String BOOKING_FINISHED = "/booking-finished";
     public static final String BOOKING_CHECK_IN = "/booking-check-in";
     public static final String BOOKING_CHECK_OUT = "/booking-check-out";
+
+    public static final String BOOKING_EDIT = "/booking-edit";
 
     public static void navigateTo(String route) {
         UI.getCurrent().access(() -> UI.getCurrent().navigate(route));

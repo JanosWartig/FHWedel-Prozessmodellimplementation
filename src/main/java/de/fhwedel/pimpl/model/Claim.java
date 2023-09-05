@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-public class Claims {
+public class Claim {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "claims_id")
+    @Column(name = "claim_id")
     private Integer id;
 
     @NotNull(message = "Pflichtangabe")
@@ -30,15 +30,24 @@ public class Claims {
     private LocalDate date;
 
     @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
+
+    @ManyToOne
     @JoinColumn(name = "add_service_id")
     private AdditionalService additionalService;
 
-    public Claims() { }
-    public Claims(Integer amount, Integer price, Integer valueAddedTax, LocalDate date) {
+    public Claim() { }
+    public Claim(Integer amount, Integer price, Integer valueAddedTax, LocalDate date) {
         this.amount = amount;
         this.price = price;
         this.valueAddedTax = valueAddedTax;
         this.date = date;
+    }
+
+
+    public Integer getId() {
+        return id;
     }
 
     public Integer getAmount() {
@@ -71,5 +80,30 @@ public class Claims {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public void setAdditionalService(AdditionalService additionalService) {
+        this.additionalService = additionalService;
+    }
+
+    public AdditionalService getAdditionalService() {
+        return additionalService;
+    }
+
+    public void setParentBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    @Override
+    public String toString() {
+        return "Claim{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", valueAddedTax=" + valueAddedTax +
+                ", date=" + date +
+                ", booking=" + booking +
+                ", additionalService=" + additionalService +
+                '}';
     }
 }

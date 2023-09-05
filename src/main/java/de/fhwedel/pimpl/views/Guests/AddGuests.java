@@ -6,6 +6,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -17,19 +18,27 @@ import de.fhwedel.pimpl.components.CustomDialog;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.ForwardButton;
 import de.fhwedel.pimpl.components.navigation.Routes;
+import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.Guest;
 import de.fhwedel.pimpl.repos.BookingRepo;
+
+import java.util.Optional;
 
 @Route(Routes.GUEST_ADD_GUEST)
 @SpringComponent
 @UIScope
 public class AddGuests extends Composite<Component> implements BeforeEnterObserver {
 
+    private final GlobalState globalState = GlobalState.getInstance();
     private final Button addGuest = new Button("Gast hinzufügen");
     private final TextField guestName = new TextField();
     private final TextField guestFirstName = new TextField();
     private final DatePicker guestBirthDate = new DatePicker();
     private final FormLayout guestForm = new FormLayout();
+
+    private final NumberField bedsCount = new NumberField();
+    private final NumberField currentGuestsCount = new NumberField();
+    private final FormLayout controlForm = new FormLayout();
     private final ForwardButton forwardButton = new ForwardButton("Buchungsbestätigung versenden", event -> {
         CustomDialog customDialog = new CustomDialog("Buchungsbestätigung wurde versendet.", "Zur Kenntnis genommen");
         customDialog.open();
@@ -38,7 +47,9 @@ public class AddGuests extends Composite<Component> implements BeforeEnterObserv
             Routes.navigateTo(Routes.EVENTS_AFTER_BOOKING_COMPLETED);
         });
     });
-    private final PageLayout pageLayout = new PageLayout("Gäste hinzufügen", "Füge der aktuellen Buchung Gäste hinzu.", guestForm, addGuest, forwardButton);
+    private final PageLayout pageLayout = new PageLayout("Gäste hinzufügen", "Füge der aktuellen Buchung Gäste hinzu.", guestForm, addGuest, controlForm, forwardButton);
+
+    private Booking currentBooking = null;
     private final BookingRepo repo;
 
     public AddGuests(BookingRepo repo) {
@@ -51,7 +62,19 @@ public class AddGuests extends Composite<Component> implements BeforeEnterObserv
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (GlobalState.getInstance().getCurrentBooking() == null) Routes.navigateTo(Routes.SEARCH_CUSTOMER);
+        if (globalState.getCurrentBookingID() == -1) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        Optional<Booking> booking = this.repo.findById(globalState.getCurrentBookingID());
+
+        if (booking.isEmpty()) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        this.currentBooking = booking.get();
     }
 
     @Override
@@ -60,9 +83,26 @@ public class AddGuests extends Composite<Component> implements BeforeEnterObserv
     }
 
     private void initGuestForm() {
+
+        if (globalState.getCurrentBookingID() == -1) {
+            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+            return;
+        }
+
+        Optional<Booking> booking = this.repo.findById(globalState.getCurrentBookingID());
+
+        if (booking.isEmpty()) return;
+
         this.guestForm.addFormItem(guestName, "Gast Name");
         this.guestForm.addFormItem(guestFirstName, "Gast Vorname");
         this.guestForm.addFormItem(guestBirthDate, "Geburtsdatum");
+
+        this.controlForm.addFormItem(bedsCount, "Anzahl Betten");
+        this.controlForm.addFormItem(currentGuestsCount, "Aktuelle Anzahl an Gästen");
+        this.bedsCount.setEnabled(false);
+        this.currentGuestsCount.setEnabled(false);
+        this.bedsCount.setValue(booking.get().getRoom().getRoomCategory().getNumberOfBeds().doubleValue());
+        this.currentGuestsCount.setValue((double) booking.get().getGuests().size());
     }
 
     private void addGuestClickEvent() {
@@ -75,10 +115,8 @@ public class AddGuests extends Composite<Component> implements BeforeEnterObserv
 
             Guest newGuest = new Guest(this.guestName.getValue(), this.guestFirstName.getValue(), this.guestBirthDate.getValue());
 
-            GlobalState globalState = GlobalState.getInstance();
-
-            int numberOfBeds = globalState.getCurrentBooking().getRoom().getRoomCategory().getNumberOfBeds();
-            int currentGuests = globalState.getCurrentBooking().getGuests().size();
+            int numberOfBeds = this.currentBooking.getRoom().getRoomCategory().getNumberOfBeds();
+            int currentGuests = this.currentBooking.getGuests().size();
             boolean isSupervisor = globalState.isSupervisorModeActive();
 
             if (currentGuests >= numberOfBeds && !isSupervisor) {
@@ -86,11 +124,11 @@ public class AddGuests extends Composite<Component> implements BeforeEnterObserv
                 return;
             }
 
-            globalState.getCurrentBooking().addGuest(newGuest);
+            this.currentBooking.addGuest(newGuest);
+            this.repo.save(this.currentBooking);
 
-            this.repo.save(globalState.getCurrentBooking());
+            this.currentGuestsCount.setValue((double)  this.currentBooking.getGuests().size());
         });
     }
-
 
 }

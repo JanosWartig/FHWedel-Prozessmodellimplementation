@@ -2,14 +2,11 @@ package de.fhwedel.pimpl.views.Customer;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -27,14 +24,11 @@ import java.util.Optional;
 @Route(Routes.SEARCH_CUSTOMER)
 @SpringComponent
 @UIScope
-public class SearchCustomer extends Composite<Component> implements BeforeEnterObserver {
+public class SearchCustomer extends Composite<Component> {
 
     private final TextField customersQuery = new TextField();
     private final Grid<Customer> customers = new Grid<>();
-    private final ForwardButton forwardButton = new ForwardButton("Neuen Kunden erstellen", event -> {
-        UI.getCurrent().navigate(Routes.CREATE_CUSTOMER);
-        event.setEnabled(false);
-    });
+    private final ForwardButton forwardButton = new ForwardButton("Neuen Kunden erstellen", event -> Routes.navigateTo(Routes.CREATE_CUSTOMER));
 
     Button customersSearch = new Button("Suchen", event -> search(Optional.of(customersQuery.getValue())));
     private final CustomerRepo customerRepo;
@@ -43,12 +37,8 @@ public class SearchCustomer extends Composite<Component> implements BeforeEnterO
 
     public SearchCustomer(CustomerRepo customerRepo) {
         this.customerRepo = customerRepo;
+        this.forwardButton.setEnabled(true);
         this.initCustomersTable();
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        this.customers.setItems();
     }
 
     @Override
@@ -57,24 +47,25 @@ public class SearchCustomer extends Composite<Component> implements BeforeEnterO
     }
 
     private void initCustomersTable() {
-        customers.addColumn(Customer::getCustomerNumber).setHeader("Kundennummer").setSortable(true);
+        customers.addColumn(Customer::getPrename).setHeader("Vorname").setSortable(true);
         customers.addColumn(Customer::getSurname).setHeader("Name").setSortable(true);
+        customers.addColumn(Customer::getCustomerNumber).setHeader("Kundennummer").setSortable(true);
         customers.setSelectionMode(SelectionMode.SINGLE);
         customers.setHeight("200px");
         customers.setWidth("700px");
         customers.addSelectionListener(event -> {
             if (event.getFirstSelectedItem().isPresent()) {
                 Customer customer = event.getFirstSelectedItem().get();
-                GlobalState.getInstance().setCurrentCustomer(customer);
-                UI.getCurrent().navigate(Routes.UPDATE_CUSTOMER);
+                GlobalState.getInstance().setCurrentCustomerID(customer.getId());
+                Routes.navigateTo(Routes.UPDATE_CUSTOMER);
             }
         });
     }
 
     private void search(Optional<String> query) {
-        List<Customer> items = query.map(customerRepo::findBySurnameContainingIgnoreCase).orElse(Collections.emptyList());
+        List<Customer> items = query.map(q -> customerRepo.findBySurnameContainingIgnoreCaseOrPrenameContainingIgnoreCaseOrCustomerNumberContainingIgnoreCase(q, q, q))
+                .orElse(Collections.emptyList());
         customers.setItems(DataProvider.ofCollection(items));
-        this.forwardButton.setEnabled(items.isEmpty());
     }
 
 }

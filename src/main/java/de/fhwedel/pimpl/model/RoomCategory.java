@@ -36,9 +36,7 @@ public class RoomCategory {
     public RoomCategory() {}
 
     public RoomCategory(String name, Integer numberOfBeds, Integer price, Integer minPrice) {
-        if (minPrice > price) {
-            throw new IllegalArgumentException("Der Mindest Preis ist größer als der Übernachtungspreis.");
-        }
+        if (minPrice > price) throw new IllegalArgumentException("Der Mindest Preis ist größer als der Übernachtungspreis.");
         this.name = name;
         this.numberOfBeds = numberOfBeds;
         this.price = price;
