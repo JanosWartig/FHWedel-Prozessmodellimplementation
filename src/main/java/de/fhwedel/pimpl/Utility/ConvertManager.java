@@ -6,4 +6,8 @@ public class ConvertManager {
         return (int) Math.round(euro * 100);
     }
 
+    public static Double convertCentToEuro(int cent) {
+        return (double) cent / 100;
+    }
+
 }

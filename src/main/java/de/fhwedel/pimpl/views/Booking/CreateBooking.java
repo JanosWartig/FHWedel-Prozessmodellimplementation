@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -29,7 +30,6 @@ import de.fhwedel.pimpl.repos.CustomerRepo;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 import de.fhwedel.pimpl.repos.RoomRepo;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -40,9 +40,9 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
 
     private final GlobalState globalState = GlobalState.getInstance();
     private final TextField roomCategoryName = new TextField();
-    private final TextField roomCategoryPrice = new TextField();
-    private final TextField roomCategoryPriceMin = new TextField();
-    private final TextField roomPrice = new TextField();
+    private final NumberField roomCategoryPrice = new NumberField();
+    private final NumberField roomCategoryPriceMin = new NumberField();
+    private final NumberField roomPrice = new NumberField();
 
 
     private final TextField checkIn = new TextField();
@@ -56,7 +56,7 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
 
     private final ErrorButton errorButton = new ErrorButton("Abbrechen", event -> Routes.navigateTo(Routes.SELECT_ROOM_BOOKING_FAILED));
 
-    private final ForwardButton forwardButton = new ForwardButton("Buchung anlegen", event -> this.createBooking());
+    private final ForwardButton forwardButton = new ForwardButton("Buchung anlegen oder aktualisieren", event -> this.createBooking());
 
     HorizontalLayout navigationLayout = new HorizontalLayout(backButton, errorButton, forwardButton);
 
@@ -102,9 +102,12 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
         this.currentCustomer = customer.get();
         this.currentRoom = room.get();
 
+        double roomCategoryPrice = ConvertManager.convertCentToEuro(roomCategory.get().getPrice());
+        double roomCategoryPriceMin = ConvertManager.convertCentToEuro(roomCategory.get().getMinPrice());
+
         this.roomCategoryName.setValue(roomCategory.get().getName());
-        this.roomCategoryPrice.setValue(roomCategory.get().getPrice() + " €");
-        this.roomCategoryPriceMin.setValue(roomCategory.get().getMinPrice() + " €");
+        this.roomCategoryPrice.setValue(roomCategoryPrice);
+        this.roomCategoryPriceMin.setValue(roomCategoryPriceMin);
         this.checkIn.setValue(checkIn);
         this.checkOut.setValue(checkOut);
 
@@ -114,10 +117,10 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
         this.checkIn.setEnabled(false);
         this.checkOut.setEnabled(false);
 
-        int computedPrice = Math.max(roomCategory.get().getPrice() * (1 - (customer.get().getDiscount() / 100)), roomCategory.get().getMinPrice());
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00 €");
-        String formattedPrice = decimalFormat.format(computedPrice);
-        this.roomPrice.setValue(formattedPrice);
+        double customerDiscount = customer.get().getDiscount().doubleValue() / 100;
+        double computedPrice = Math.max(roomCategoryPrice * (1 - (customerDiscount)), roomCategoryPriceMin);
+
+        this.roomPrice.setValue(computedPrice);
     }
 
     @Override
@@ -127,54 +130,55 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
 
     private void initPrice() {
         this.roomPriceForm.addFormItem(this.roomCategoryName, "Zimmerkategorie");
-        this.roomPriceForm.addFormItem(this.roomCategoryPrice, "Preis");
-        this.roomPriceForm.addFormItem(this.roomCategoryPriceMin, "Mindestpreis");
-        this.roomPriceForm.addFormItem(this.roomPrice, "Errechneter Zimmerpreis");
+        this.roomPriceForm.addFormItem(this.roomCategoryPrice, "Preis in EUR");
+        this.roomPriceForm.addFormItem(this.roomCategoryPriceMin, "Mindestpreis in EUR");
+        this.roomPriceForm.addFormItem(this.roomPrice, "Errechneter Zimmerpreis in EUR");
         this.roomPriceForm.addFormItem(this.checkIn, "Check-In");
         this.roomPriceForm.addFormItem(this.checkOut, "Check-Out");
     }
 
     private void createBooking() {
-        int convertedPrice = this.convertStringEuroToNumber();
+        int convertedPrice = ConvertManager.convertEuroToCent(this.roomPrice.getValue());
 
-        Booking newBooking = new Booking(globalState.getCurrentDate(),
-                Booking.BookingState.Reserved,
-                this.comment.getValue(),
-                this.globalState.getBookingCheckIn(),
-                null,
-                this.globalState.getBookingCheckOut(),
-                null,
-                convertedPrice,
-                null,
-                this.currentCustomer,
-                this.currentRoom
-        );
+        // Neue Buchung erstellen
+        if (this.globalState.getCurrentBookingID() == -1) {
+            Booking newBooking = new Booking(globalState.getCurrentDate(), Booking.BookingState.Reserved, this.comment.getValue(),
+                    this.globalState.getBookingCheckIn(), null, this.globalState.getBookingCheckOut(),
+                    null, convertedPrice, null, this.currentCustomer, this.currentRoom);
 
-        if (!this.isAllowedToCreateBooking(newBooking)) return;
+            if (!this.isAllowedToCreateBooking(newBooking)) return;
 
-        Booking booking = this.bookingRepo.save(newBooking);
-        String bookingNumber = "booking_" + booking.getId();
-        booking.setBookingNumber(bookingNumber);
-        this.bookingRepo.save(booking);
-        globalState.setCurrentBookingID(booking.getId());
+            Booking booking = this.bookingRepo.save(newBooking);
+            String bookingNumber = "booking_" + booking.getId();
+            booking.setBookingNumber(bookingNumber);
+            this.bookingRepo.save(booking);
+            globalState.setCurrentBookingID(booking.getId());
+        } else {
+            // Buchung aktualisieren
+            Optional<Booking> booking = this.bookingRepo.findById(this.globalState.getCurrentBookingID());
+            if (booking.isEmpty()) {
+                Routes.navigateTo(Routes.BOOKINGS_SEARCH);
+                return;
+            }
+            Booking currentBooking = booking.get();
+            currentBooking.setBookingDate(this.globalState.getCurrentDate());
+            currentBooking.setBookingState(Booking.BookingState.Reserved);
+            currentBooking.setComment(this.comment.getValue());
+            currentBooking.setCheckInShould(this.globalState.getBookingCheckIn());
+            currentBooking.setCheckOutShould(this.globalState.getBookingCheckOut());
+            currentBooking.setRoomPrice(convertedPrice);
+            currentBooking.setRoom(this.currentRoom);
+            this.bookingRepo.save(currentBooking);
+        }
+
         Routes.navigateTo(Routes.GUEST_ADD_GUEST);
     }
 
-    public int convertStringEuroToNumber() {
-        String price = this.roomPrice.getValue();
-        price = price.replaceAll("[^0-9.,]", "");
-        price = price.replace(',', '.');
-        try {
-            double euroAmount = Double.parseDouble(price);
-            return ConvertManager.convertEuroToCent(euroAmount);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
     private boolean isAllowedToCreateBooking(Booking booking) {
+        int convertedPrice = ConvertManager.convertEuroToCent(this.roomPrice.getValue());
+
         // Nicht Supervisor dann muss der Zimmerkategorie.Mindestpreis >= Preis sein
-        if (this.convertStringEuroToNumber() < this.currentRoom.getRoomCategory().getMinPrice() * 100 && !globalState.isSupervisorModeActive()) {
+        if (convertedPrice < this.currentRoom.getRoomCategory().getMinPrice() && !globalState.isSupervisorModeActive()) {
             Notifications.showErrorNotification("Der Preis liegt unter dem Mindestpreis der Zimmerkategorie.");
             return false;
         }

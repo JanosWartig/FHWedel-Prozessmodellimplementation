@@ -1,10 +1,5 @@
 package de.fhwedel.pimpl.Utility;
 
-import de.fhwedel.pimpl.model.Booking;
-import de.fhwedel.pimpl.model.Customer;
-import de.fhwedel.pimpl.model.Guest;
-import de.fhwedel.pimpl.model.RoomCategory;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.time.LocalDate;
@@ -18,12 +13,10 @@ public class GlobalState {
     private Integer currentRoomCategoryID = -1;
     private LocalDate bookingCheckIn = null;
     private LocalDate bookingCheckOut = null;
-
     private Integer currentRoomID = -1;
-
-
     private Integer currentBookingID = -1;
     private Integer currentGuestID = -1;
+    private LocalDate currentDate = LocalDate.now();
 
 
 
@@ -31,16 +24,11 @@ public class GlobalState {
 
 
 
-
-
-    private Booking currentBooking = null;
-
-    private Guest currentGuest = null;
 
     public static String SUPERVISOR_PROPERTY_NAME = "isSupervisorModeActive";
     public static String CURRENT_DATE_PROPERTY_NAME = "currentDate";
     private boolean isSupervisorModeActive = false;
-    private LocalDate currentDate = LocalDate.now();
+
 
     private GlobalState() { }
 
@@ -107,26 +95,17 @@ public class GlobalState {
     	this.currentGuestID = currentGuestID;
     }
 
+    public LocalDate getCurrentDate() {
+        return currentDate;
+    }
 
-
-
-
-
-
-
-    public Booking getCurrentBooking() {
-        return currentBooking;
+    public void setCurrentDate(LocalDate currentDate) {
+        LocalDate oldValue = this.currentDate;
+        this.currentDate = currentDate;
+        propertyChangeSupport.firePropertyChange(CURRENT_DATE_PROPERTY_NAME, oldValue, currentDate);
     }
 
 
-
-    public void setCurrentGuest(Guest currentGuest) {
-    	this.currentGuest = currentGuest;
-    }
-
-    public Guest getCurrentGuest() {
-    	return this.currentGuest;
-    }
 
     public void setSupervisorModeActive(boolean supervisorModeActive) {
         boolean oldValue = isSupervisorModeActive;
@@ -138,15 +117,7 @@ public class GlobalState {
         return this.isSupervisorModeActive;
     }
 
-    public LocalDate getCurrentDate() {
-        return currentDate;
-    }
 
-    public void setCurrentDate(LocalDate currentDate) {
-        LocalDate oldValue = this.currentDate;
-        this.currentDate = currentDate;
-        propertyChangeSupport.firePropertyChange(CURRENT_DATE_PROPERTY_NAME, oldValue, currentDate);
-    }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.addPropertyChangeListener(listener);

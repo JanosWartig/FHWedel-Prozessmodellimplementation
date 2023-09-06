@@ -34,21 +34,32 @@ public class PIMPLPersistence {
 		return (args) -> {
 			if (config.isRegenerate()) {
 				// Room Categories
-				RoomCategory small = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Small, 1, 20, 10);
-				RoomCategory big = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Big, 5, 100, 50);
+				RoomCategory small = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Small, 1, 2000, 1000);
+				RoomCategory middle = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Middle, 3, 5000, 5000);
+				RoomCategory big = RoomCategory.createExampleRoomCategory(RoomCategory.RoomTypes.Big, 5, 10000, 5000);
 				rc.save(small);
+				rc.save(middle);
 				rc.save(big);
 				// Rooms
-				for(int i = 1; i < 20; i++) {
-					Room room = new Room(i, i > 10 ? big : small);
-					roomRepo.save(room);
-				}
+				roomRepo.save(new Room(1, small));
+				roomRepo.save(new Room(2, small));
+				roomRepo.save(new Room(3, small));
+				roomRepo.save(new Room(4, small));
+
+				roomRepo.save(new Room(5, middle));
+				roomRepo.save(new Room(6, middle));
+				roomRepo.save(new Room(7, middle));
+
+				roomRepo.save(new Room(8, big));
+				roomRepo.save(new Room(9, big));
+				roomRepo.save(new Room(10, big));
+
 				// Additional Services
-				AdditionalService breakfast = new AdditionalService("Breakfast", 10, null);
-				AdditionalService dinner = new AdditionalService("Dinner", 20, null);
-				AdditionalService parking = new AdditionalService("Parking", 5, null);
-				AdditionalService wifi = new AdditionalService("Wifi", 2, null);
-				AdditionalService minibar = new AdditionalService("Minibar", 5, null);
+				AdditionalService breakfast = new AdditionalService("Breakfast", 1000, null);
+				AdditionalService dinner = new AdditionalService("Dinner", 2000, null);
+				AdditionalService parking = new AdditionalService("Parking", 500, null);
+				AdditionalService wifi = new AdditionalService("Wifi", 200, null);
+				AdditionalService minibar = new AdditionalService("Minibar", 500, null);
 				asr.save(breakfast);
 				asr.save(dinner);
 				asr.save(parking);

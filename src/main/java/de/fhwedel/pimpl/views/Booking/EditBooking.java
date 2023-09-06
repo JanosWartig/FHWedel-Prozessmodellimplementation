@@ -14,6 +14,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import de.fhwedel.pimpl.Utility.ConvertManager;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.Routes;
@@ -38,7 +39,7 @@ public class EditBooking extends Composite<Component> implements BeforeEnterObse
     private final DatePicker checkInIs = new DatePicker("Check In Ist");
     private final DatePicker checkOutShould = new DatePicker("Check Out Soll");
     private final DatePicker checkOutIs = new DatePicker("Check Out Ist");
-    private final NumberField roomPrice = new NumberField("Zimmerpreis");
+    private final NumberField roomPrice = new NumberField("Zimmerpreis in EUR");
     private final TextField kfz = new TextField("KFZ-Kennzeichen");
 
     HorizontalLayout nonChangingValues = new HorizontalLayout(bookingID, bookingNumber);
@@ -66,11 +67,6 @@ public class EditBooking extends Composite<Component> implements BeforeEnterObse
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (this.globalState.getCurrentBookingID() == -1) {
-            Routes.navigateTo(Routes.BOOKINGS_SEARCH);
-            return;
-        }
-
         Optional<Booking> booking = this.repo.findById(this.globalState.getCurrentBookingID());
 
         if (booking.isEmpty()) {
@@ -96,7 +92,7 @@ public class EditBooking extends Composite<Component> implements BeforeEnterObse
         if (this.currentBooking.getCheckOutIs() != null) {
             this.checkOutIs.setValue(this.currentBooking.getCheckOutIs());
         }
-        this.roomPrice.setValue(this.currentBooking.getRoomPrice().doubleValue());
+        this.roomPrice.setValue(ConvertManager.convertCentToEuro(this.currentBooking.getRoomPrice()));
         if (this.currentBooking.getLicensePlate() != null) {
             this.kfz.setValue(this.currentBooking.getLicensePlate());
         }
@@ -130,7 +126,6 @@ public class EditBooking extends Composite<Component> implements BeforeEnterObse
         this.currentBooking.setLicensePlate(this.kfz.getValue());
 
         this.repo.save(this.currentBooking);
-        globalState.setCurrentBookingID(this.currentBooking.getId());
 
         if (this.oldBookingState != this.currentBooking.getBookingState()) {
             switch (this.currentBooking.getBookingState()) {

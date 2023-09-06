@@ -15,6 +15,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import de.fhwedel.pimpl.Utility.AllowedToPerformActionManager;
+import de.fhwedel.pimpl.Utility.ConvertManager;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.components.navigation.Routes;
@@ -77,8 +78,8 @@ public class SelectRoomCategoryView extends Composite<Component> implements Befo
     private void configureRoomCategories() {
         roomCategories.addColumn(RoomCategory::getName).setHeader("Zimmerkategorie").setSortable(true);
         roomCategories.addColumn(RoomCategory::getNumberOfBeds).setHeader("Betten").setSortable(true);
-        roomCategories.addColumn(RoomCategory::getPrice).setHeader("Preis").setSortable(true);
-        roomCategories.addColumn(RoomCategory::getMinPrice).setHeader("Min Preis").setSortable(true);
+        roomCategories.addColumn(roomCategory -> ConvertManager.convertCentToEuro(roomCategory.getPrice()) + "€").setHeader("Preis").setSortable(true);
+        roomCategories.addColumn(roomCategory -> ConvertManager.convertCentToEuro(roomCategory.getMinPrice()) + "€").setHeader("Min Preis").setSortable(true);
         roomCategories.setSelectionMode(Grid.SelectionMode.SINGLE);
         roomCategories.setHeight("200px");
         roomCategories.setWidth("700px");

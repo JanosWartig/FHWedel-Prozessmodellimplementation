@@ -10,6 +10,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import de.fhwedel.pimpl.Utility.ConvertManager;
 import de.fhwedel.pimpl.Utility.GlobalState;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.BackButton;
@@ -67,8 +68,8 @@ public class AvailableRoomsView extends Composite<Component> implements BeforeEn
         rooms.addColumn(Room::getRoomNumber).setHeader("Zimmernummer").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getName()).setHeader("Zimmerkategorie").setSortable(true);
         rooms.addColumn(room -> room.getRoomCategory().getNumberOfBeds()).setHeader("Bettanzahl").setSortable(true);
-        rooms.addColumn(room -> room.getRoomCategory().getPrice()).setHeader("Preis").setSortable(true);
-        rooms.addColumn(room -> room.getRoomCategory().getMinPrice()).setHeader("Min Preis").setSortable(true);
+        rooms.addColumn(room -> ConvertManager.convertCentToEuro(room.getRoomCategory().getPrice()) + "€").setHeader("Preis").setSortable(true);
+        rooms.addColumn(room -> ConvertManager.convertCentToEuro(room.getRoomCategory().getMinPrice()) + "€").setHeader("Min Preis").setSortable(true);
         rooms.setSelectionMode(Grid.SelectionMode.SINGLE);
         rooms.setHeight("200px");
         rooms.setWidth("700px");
