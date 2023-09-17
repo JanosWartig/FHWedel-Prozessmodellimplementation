@@ -7,6 +7,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -24,7 +26,7 @@ import java.util.Optional;
 @Route(Routes.SEARCH_CUSTOMER)
 @SpringComponent
 @UIScope
-public class SearchCustomer extends Composite<Component> {
+public class SearchCustomer extends Composite<Component> implements BeforeEnterObserver {
 
     private final TextField customersQuery = new TextField();
     private final Grid<Customer> customers = new Grid<>();
@@ -39,6 +41,11 @@ public class SearchCustomer extends Composite<Component> {
         this.customerRepo = customerRepo;
         this.forwardButton.setEnabled(true);
         this.initCustomersTable();
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        GlobalState.getInstance().setCurrentBookingID(-1);
     }
 
     @Override
@@ -67,5 +74,6 @@ public class SearchCustomer extends Composite<Component> {
                 .orElse(Collections.emptyList());
         customers.setItems(DataProvider.ofCollection(items));
     }
+
 
 }

@@ -40,6 +40,8 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
 
     private final GlobalState globalState = GlobalState.getInstance();
     private final TextField roomCategoryName = new TextField();
+
+    private final NumberField customerDiscount = new NumberField();
     private final NumberField roomCategoryPrice = new NumberField();
     private final NumberField roomCategoryPriceMin = new NumberField();
     private final NumberField roomPrice = new NumberField();
@@ -106,6 +108,7 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
         double roomCategoryPriceMin = ConvertManager.convertCentToEuro(roomCategory.get().getMinPrice());
 
         this.roomCategoryName.setValue(roomCategory.get().getName());
+        this.customerDiscount.setValue(customer.get().getDiscount().doubleValue());
         this.roomCategoryPrice.setValue(roomCategoryPrice);
         this.roomCategoryPriceMin.setValue(roomCategoryPriceMin);
         this.checkIn.setValue(checkIn);
@@ -116,6 +119,7 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
         this.roomCategoryPriceMin.setEnabled(false);
         this.checkIn.setEnabled(false);
         this.checkOut.setEnabled(false);
+        this.customerDiscount.setEnabled(false);
 
         double customerDiscount = customer.get().getDiscount().doubleValue() / 100;
         double computedPrice = Math.max(roomCategoryPrice * (1 - (customerDiscount)), roomCategoryPriceMin);
@@ -130,8 +134,9 @@ public class CreateBooking extends Composite<Component> implements BeforeEnterOb
 
     private void initPrice() {
         this.roomPriceForm.addFormItem(this.roomCategoryName, "Zimmerkategorie");
-        this.roomPriceForm.addFormItem(this.roomCategoryPrice, "Preis in EUR");
-        this.roomPriceForm.addFormItem(this.roomCategoryPriceMin, "Mindestpreis in EUR");
+        this.roomPriceForm.addFormItem(this.roomCategoryPrice, "Zimmerkategorie Preis in EUR");
+        this.roomPriceForm.addFormItem(this.roomCategoryPriceMin, "Zimmerkategorie Mindestpreis in EUR");
+        this.roomPriceForm.addFormItem(this.customerDiscount, "Kundenrabatt in %");
         this.roomPriceForm.addFormItem(this.roomPrice, "Errechneter Zimmerpreis in EUR");
         this.roomPriceForm.addFormItem(this.checkIn, "Check-In");
         this.roomPriceForm.addFormItem(this.checkOut, "Check-Out");

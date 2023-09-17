@@ -97,13 +97,13 @@ public class PreCheckoutGuests extends Composite<Component> implements BeforeEnt
         this.additionalServices.setHeight("250px");
         this.additionalServices.setWidth("700px");
         this.additionalServices.addColumn(AdditionalService::getName).setHeader("Name").setSortable(true);
-        this.additionalServices.addColumn(AdditionalService::getPrice).setHeader("Preis").setSortable(true);
+        this.additionalServices.addColumn(service -> ConvertManager.convertCentToEuro(service.getPrice()) + "€").setHeader("Preis").setSortable(true);
         this.additionalServices.addSelectionListener(event -> {
             if (event.getFirstSelectedItem().isPresent()) {
                 AdditionalService additionalService = event.getFirstSelectedItem().get();
                 this.selectedAdditionalService = additionalService;
                 this.selectedServiceName.setValue(additionalService.getName());
-                this.selectedServicePrice.setValue(additionalService.getPrice().doubleValue());
+                this.selectedServicePrice.setValue(ConvertManager.convertCentToEuro(additionalService.getPrice()));
                 this.selectedServiceAmount.setEnabled(true);
                 this.addService.setEnabled(true);
             } else {

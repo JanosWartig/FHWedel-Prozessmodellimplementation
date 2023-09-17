@@ -16,7 +16,6 @@ import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.model.Booking;
 
-import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.BookingRepo;
 
 import java.util.Collections;

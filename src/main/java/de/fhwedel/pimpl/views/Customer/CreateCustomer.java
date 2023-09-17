@@ -18,7 +18,6 @@ import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.BackButton;
 import de.fhwedel.pimpl.components.navigation.ForwardButton;
-import de.fhwedel.pimpl.model.Booking;
 import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.repos.CustomerRepo;
 

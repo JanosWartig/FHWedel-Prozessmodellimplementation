@@ -21,7 +21,7 @@ import de.fhwedel.pimpl.Utility.Notifications;
 import de.fhwedel.pimpl.components.navigation.Routes;
 import de.fhwedel.pimpl.components.PageLayout;
 import de.fhwedel.pimpl.components.navigation.ForwardButton;
-import de.fhwedel.pimpl.model.Booking;
+import de.fhwedel.pimpl.model.Customer;
 import de.fhwedel.pimpl.model.RoomCategory;
 import de.fhwedel.pimpl.repos.RoomCategoryRepo;
 
@@ -115,7 +115,13 @@ public class SelectRoomCategoryView extends Composite<Component> implements Befo
     }
 
     public void search(Optional<String> query) {
-        List<RoomCategory> items = query.map(roomCategoryRepo::findByNameContainingIgnoreCase).orElse(Collections.emptyList());
+        List<RoomCategory> items = query.map(q -> {
+            if (q.matches("\\d+")) {
+                return roomCategoryRepo.findByNumberOfBeds(Integer.parseInt(q));
+            } else {
+                return roomCategoryRepo.findByNameContainingIgnoreCase(q);
+            }
+        }).orElse(Collections.emptyList());
         roomCategories.setItems(DataProvider.ofCollection(items));
     }
 

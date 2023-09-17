@@ -13,14 +13,30 @@ import java.util.Objects;
 public class Booking {
 
     public enum BookingState {
-        Reserved,
-        CheckedIn,
-        CheckedOut,
-
-        Finished,
-        Canceled,
-
-        Canceled_Finished
+        Reserved {
+            @Override
+            public String toString() { return "Reserved"; }
+        },
+        CheckedIn {
+            @Override
+            public String toString() { return "CheckedIn"; }
+        },
+        CheckedOut {
+            @Override
+            public String toString() { return "CheckedOut"; }
+        },
+        Finished {
+            @Override
+            public String toString() { return "Finished"; }
+        },
+        Canceled {
+            @Override
+            public String toString() { return "Canceled"; }
+        },
+        Canceled_Finished {
+            @Override
+            public String toString() { return "Canceled_Finished"; }
+        }
     }
 
     @Id
@@ -212,6 +228,7 @@ public class Booking {
 
     public void removeGuest(Guest guest) {
         this.guests.removeIf(g -> Objects.equals(g.getId(), guest.getId()));
+        guest.setParentBooking(null);
     }
 
     public List<Claim> getClaims() {
@@ -221,6 +238,22 @@ public class Booking {
     public void addClaim(Claim claim) {
         claim.setParentBooking(this);
         this.claims.add(claim);
+    }
+
+    public void updateClaim(Claim claim) {
+        for (Claim c : claims) {
+            if (Objects.equals(c.getId(), claim.getId())) {
+                c.setDate(claim.getDate());
+                c.setAmount(claim.getAmount());
+                c.setPrice(claim.getPrice());
+                c.setValueAddedTax(claim.getValueAddedTax());
+            }
+        }
+    }
+
+    public void removeClaim(Claim claim) {
+        this.claims.removeIf(c -> Objects.equals(c.getId(), claim.getId()));
+        claim.setParentBooking(null);
     }
 
 

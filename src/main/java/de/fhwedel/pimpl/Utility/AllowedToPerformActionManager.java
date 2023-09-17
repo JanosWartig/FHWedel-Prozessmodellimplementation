@@ -3,7 +3,6 @@ package de.fhwedel.pimpl.Utility;
 import de.fhwedel.pimpl.model.Booking;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 public class AllowedToPerformActionManager {
 
@@ -41,7 +40,7 @@ public class AllowedToPerformActionManager {
         System.out.println("Hiermit setze ich den Status der Buchung auf Reserviert:" + Booking.BookingState.Reserved);
 
         /**
-        if (booking.getBookingState() == Booking.BookingState.Reserved) {
+        if (booking.getBookingState().toString() == Booking.BookingState.Reserved.toString()) {
             Notifications.showErrorNotification("Beim neu erstellen einer Buchung muss der Status der Buchung auf Reserviert stehen, das ist momentan nicht der Fall.");
             return false;
         } */
